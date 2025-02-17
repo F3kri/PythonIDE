@@ -103,6 +103,35 @@ codeEditor.addEventListener('keydown', (e) => {
         const end = codeEditor.selectionEnd;
         codeEditor.value = codeEditor.value.substring(0, start) + "    " + codeEditor.value.substring(end);
         codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
+        updateCodeHighlighting();
+    } else if (e.key === 'Enter') {
+        const start = codeEditor.selectionStart;
+        const textBeforeCursor = codeEditor.value.substring(0, start);
+        const lines = textBeforeCursor.split('\n');
+        const currentLine = lines[lines.length - 1];
+        
+        // Compter les tabulations de la ligne courante
+        const currentIndent = currentLine.match(/^ */)[0].length;
+        let newIndent = currentIndent;
+        
+        // Vérifier si la ligne se termine par ":"
+        if (currentLine.trim().endsWith(':')) {
+            e.preventDefault();
+            newIndent = currentIndent + 4; // Ajouter une tabulation
+            codeEditor.value = codeEditor.value.substring(0, start) + 
+                             "\n" + " ".repeat(newIndent) + 
+                             codeEditor.value.substring(start);
+            codeEditor.selectionStart = codeEditor.selectionEnd = start + newIndent + 1;
+            updateCodeHighlighting();
+        } else {
+            // Conserver l'indentation courante
+            e.preventDefault();
+            codeEditor.value = codeEditor.value.substring(0, start) + 
+                             "\n" + " ".repeat(currentIndent) + 
+                             codeEditor.value.substring(start);
+            codeEditor.selectionStart = codeEditor.selectionEnd = start + currentIndent + 1;
+            updateCodeHighlighting();
+        }
     }
 });
 
@@ -305,6 +334,7 @@ function switchFile(file) {
     codeEditor.value = file.content;
     setLanguage(file.name.endsWith('.js') ? '.js' : '.py');
     updateLineNumbers();
+    updateCodeHighlighting();
     updateFileExplorer();
 }
 
@@ -504,4 +534,58 @@ codeEditor.addEventListener('input', (e) => {
 globalThis.customInput = (promptText) => {
     const value = window.prompt(promptText);
     return value === null ? "" : value;
-}; 
+};
+
+function updateCodeHighlighting() {
+    // Obtenir le code
+    const code = codeEditor.value;
+    
+    // Créer un élément pre temporaire pour la coloration
+    const preElement = document.createElement('pre');
+    preElement.className = currentLanguage === 'python' ? 'language-python' : 'language-javascript';
+    
+    // Créer un élément code pour le contenu
+    const codeElement = document.createElement('code');
+    codeElement.className = currentLanguage === 'python' ? 'language-python' : 'language-javascript';
+    codeElement.textContent = code;
+    
+    preElement.appendChild(codeElement);
+    
+    // Appliquer la coloration syntaxique
+    Prism.highlightElement(codeElement);
+    
+    // Mettre à jour le contenu de l'éditeur
+    const highlightedContent = codeElement.innerHTML;
+    
+    // Créer un div pour contenir le texte coloré
+    const highlightLayer = document.createElement('div');
+    highlightLayer.className = 'highlight-layer';
+    highlightLayer.innerHTML = highlightedContent;
+    
+    // Mettre à jour la couche de coloration
+    const existingLayer = document.querySelector('.highlight-layer');
+    if (existingLayer) {
+        existingLayer.innerHTML = highlightedContent;
+    } else {
+        document.querySelector('.editor-container').appendChild(highlightLayer);
+    }
+}
+
+// Modifier l'événement input de l'éditeur
+codeEditor.addEventListener('input', () => {
+    updateLineNumbers();
+    updateCodeHighlighting();
+});
+
+// Ajouter au switchFile
+function switchFile(file) {
+    if (currentFile) {
+        currentFile.content = codeEditor.value;
+    }
+    currentFile = file;
+    codeEditor.value = file.content;
+    setLanguage(file.name.endsWith('.js') ? '.js' : '.py');
+    updateLineNumbers();
+    updateCodeHighlighting();
+    updateFileExplorer();
+} 
