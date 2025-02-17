@@ -3,7 +3,7 @@ let isWaitingForInput = false;
 let currentFile = {
     id: Date.now(),
     name: 'undefined.py',
-    content: ''
+    content: 'print("Hello World !")'
 };
 let files = [];
 files.push(currentFile);
@@ -212,13 +212,13 @@ function createNewFile() {
         const newFile = {
             id: Date.now(),
             name: baseName.endsWith('.py') ? baseName : baseName + '.py',
-            content: ''
+            content: 'print("Hello World !")'
         };
 
         files.push(newFile);
         currentFile = newFile;
         updateFileExplorer();
-        codeEditor.value = '';
+        codeEditor.value = newFile.content;
         updateCodeHighlighting();
     });
 }
@@ -533,4 +533,7 @@ function switchFile(file) {
     setLanguage(file.name.endsWith('.js') ? '.js' : '.py');
     updateCodeHighlighting();
     updateFileExplorer();
-} 
+}
+
+codeEditor.value = currentFile.content;  // Initialiser le contenu de l'éditeur
+updateCodeHighlighting();  // Mettre à jour la coloration syntaxique 
