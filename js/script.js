@@ -69,7 +69,6 @@ window.addEventListener('load', () => {
 });
 
 const codeEditor = document.getElementById('codeEditor');
-const lineNumbers = document.getElementById('lineNumbers');
 const runButton = document.getElementById('run');
 const saveButton = document.getElementById('save');
 const clearButton = document.getElementById('clear');
@@ -78,69 +77,12 @@ const clearConsoleButton = document.getElementById('clearConsole');
 
 let scrollTimeout;
 codeEditor.addEventListener('scroll', () => {
-    if (!scrollTimeout) {
-        scrollTimeout = setTimeout(() => {
-            lineNumbers.scrollTop = codeEditor.scrollTop;
-            scrollTimeout = null;
-        }, 10);
+    const highlightLayer = document.querySelector('.highlight-layer');
+    if (highlightLayer) {
+        highlightLayer.scrollTop = codeEditor.scrollTop;
+        highlightLayer.scrollLeft = codeEditor.scrollLeft;
     }
 }, { passive: true });
-
-function updateLineNumbers() {
-    requestAnimationFrame(() => {
-        const lines = codeEditor.value.split('\n');
-        const lineCount = lines.length;
-        const lineNumbersHTML = [];
-        
-        for (let i = 0; i < lineCount; i++) {
-            lineNumbersHTML.push(`<div class="line-number">${i + 1}</div>`);
-        }
-        
-        lineNumbers.innerHTML = lineNumbersHTML.join('');
-    });
-}
-
-updateLineNumbers();
-
-codeEditor.addEventListener('input', updateLineNumbers);
-codeEditor.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-        e.preventDefault();
-        const start = codeEditor.selectionStart;
-        const end = codeEditor.selectionEnd;
-        codeEditor.value = codeEditor.value.substring(0, start) + "    " + codeEditor.value.substring(end);
-        codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
-        updateCodeHighlighting();
-    } else if (e.key === 'Enter') {
-        const start = codeEditor.selectionStart;
-        const textBeforeCursor = codeEditor.value.substring(0, start);
-        const lines = textBeforeCursor.split('\n');
-        const currentLine = lines[lines.length - 1];
-        
-        // Compter les tabulations de la ligne courante
-        const currentIndent = currentLine.match(/^ */)[0].length;
-        let newIndent = currentIndent;
-        
-        // Vérifier si la ligne se termine par ":"
-        if (currentLine.trim().endsWith(':')) {
-            e.preventDefault();
-            newIndent = currentIndent + 4; // Ajouter une tabulation
-            codeEditor.value = codeEditor.value.substring(0, start) + 
-                             "\n" + " ".repeat(newIndent) + 
-                             codeEditor.value.substring(start);
-            codeEditor.selectionStart = codeEditor.selectionEnd = start + newIndent + 1;
-            updateCodeHighlighting();
-        } else {
-            // Conserver l'indentation courante
-            e.preventDefault();
-            codeEditor.value = codeEditor.value.substring(0, start) + 
-                             "\n" + " ".repeat(currentIndent) + 
-                             codeEditor.value.substring(start);
-            codeEditor.selectionStart = codeEditor.selectionEnd = start + currentIndent + 1;
-            updateCodeHighlighting();
-        }
-    }
-});
 
 function createCustomPrompt(message, title) {
     return new Promise((resolve) => {
@@ -254,7 +196,7 @@ clearConsoleButton.addEventListener('click', () => {
 
 clearButton.addEventListener('click', () => {
     codeEditor.value = '';
-    updateLineNumbers();
+    updateCodeHighlighting();
 });
 
 function createNewFile() {
@@ -277,7 +219,7 @@ function createNewFile() {
         currentFile = newFile;
         updateFileExplorer();
         codeEditor.value = '';
-        updateLineNumbers();
+        updateCodeHighlighting();
     });
 }
 
@@ -340,7 +282,6 @@ function switchFile(file) {
     currentFile = file;
     codeEditor.value = file.content;
     setLanguage(file.name.endsWith('.js') ? '.js' : '.py');
-    updateLineNumbers();
     updateCodeHighlighting();
     updateFileExplorer();
 }
@@ -474,7 +415,6 @@ async function deleteFile(fileId) {
         if (currentFile && currentFile.id === fileId) {
             currentFile = files[0];
             codeEditor.value = currentFile.content;
-            updateLineNumbers();
         }
         updateFileExplorer();
     }
@@ -580,7 +520,6 @@ function updateCodeHighlighting() {
 
 // Modifier l'événement input de l'éditeur
 codeEditor.addEventListener('input', () => {
-    updateLineNumbers();
     updateCodeHighlighting();
 });
 
@@ -592,7 +531,6 @@ function switchFile(file) {
     currentFile = file;
     codeEditor.value = file.content;
     setLanguage(file.name.endsWith('.js') ? '.js' : '.py');
-    updateLineNumbers();
     updateCodeHighlighting();
     updateFileExplorer();
 } 

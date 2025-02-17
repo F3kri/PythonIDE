@@ -264,6 +264,12 @@ body {
     padding: 10px;
 }
 
+.line-gutter {
+    width: 3rem;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid rgba(99, 102, 241, 0.1);
+}
+
 .editor-container {
     display: flex;
     flex: 1;
@@ -275,26 +281,6 @@ body {
     border: var(--glass-border);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
     position: relative;
-}
-
-.line-numbers {
-    padding: 1rem 0.8rem;
-    background-color: var(--sidebar-bg);
-    text-align: right;
-    user-select: none;
-    color: #64748b;
-    border-right: 1px solid rgba(99, 102, 241, 0.1);
-    font-size: 0.875rem;
-    z-index: 2;
-    position: relative;
-    width: 3rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.line-number {
-    height: 1.7rem; /* Même que line-height du texte */
-    line-height: 1.7rem;
 }
 
 #codeEditor {
@@ -313,6 +299,7 @@ body {
     white-space: pre;
     tab-size: 4;
     letter-spacing: normal;
+    overflow: auto;
 }
 
 .highlight-layer {
@@ -329,9 +316,9 @@ body {
     white-space: pre;
     tab-size: 4;
     z-index: 1;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     letter-spacing: normal;
+    color: var(--text-color);
 }
 
 /* Styles pour Prism.js */
