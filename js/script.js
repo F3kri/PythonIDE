@@ -44,12 +44,28 @@ async function initPyodide() {
 }
 
 window.addEventListener('load', () => {
-    setTimeout(async () => {
+    const loadingText = document.querySelector('.typing-text');
+    const messages = [
+        'Chargement...',
+        'Configuration...',
+        'Presque prêt...'
+    ];
+    let messageIndex = 0;
+
+    const updateMessage = () => {
+        loadingText.textContent = messages[messageIndex];
+        messageIndex = (messageIndex + 1) % messages.length;
+    };
+
+    const messageInterval = setInterval(updateMessage, 800);
+
+    setTimeout(() => {
+        clearInterval(messageInterval);
         const loadingScreen = document.getElementById('loading-screen');
         loadingScreen.style.opacity = '0';
         loadingScreen.style.visibility = 'hidden';
-        await initPyodide();
-    }, 1500);
+        initPyodide();
+    }, 2400);
 });
 
 const codeEditor = document.getElementById('codeEditor');
