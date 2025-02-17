@@ -27,12 +27,14 @@ async function initPyodide() {
             from js import customInput
             
             def input(prompt_text=""):
-                return customInput(prompt_text)
+                return str(customInput(prompt_text))
             
             def int_input(prompt_text=""):
-                value = input(prompt_text)
-                return int(value)
+                val = customInput(prompt_text)
+                return int(val)
                 
+            globals()['input'] = input
+            globals()['int_input'] = int_input
             __builtins__.input = input
             __builtins__.int_input = int_input
         `);
@@ -145,44 +147,16 @@ function createInputArea(promptText) {
 }
 
 runButton.addEventListener('click', async () => {
-    if (currentFile.name.endsWith('.js')) {
-        try {
-            consoleOutput.innerHTML = '';
-            const code = codeEditor.value;
-            const originalConsoleLog = console.log;
-            const originalConsoleError = console.error;
-
-            console.log = (...args) => {
-                consoleOutput.innerHTML += `<div class="output-message">${args.join(' ')}</div>`;
-            };
-            console.error = (...args) => {
-                consoleOutput.innerHTML += `<div class="error-message">${args.join(' ')}</div>`;
-            };
-
-            const result = eval(code);
-            if (result !== undefined) {
-                consoleOutput.innerHTML += `<div class="output-message">${result}</div>`;
-            }
-
-            console.log = originalConsoleLog;
-            console.error = originalConsoleError;
-        } catch (error) {
-            consoleOutput.innerHTML += `<div class="error-message">${error.message}</div>`;
-        }
-        return;
-    }
-
     if (!pyodide) {
         consoleOutput.innerHTML += '<div class="error-message">Pyodide n\'est pas encore chargé. Veuillez patienter...</div>';
         return;
     }
 
-    if (isWaitingForInput) {
-        consoleOutput.innerHTML += '<div class="error-message">Veuillez d\'abord répondre à l\'input en cours</div>';
-        return;
-    }
-
-    const code = codeEditor.value;
+    let code = codeEditor.value;
+    
+    // Remplacer tous les int(input(...)) par int_input(...)
+    code = code.replace(/int\(input\((.*?)\)\)/g, 'int_input($1)');
+    
     consoleOutput.innerHTML = '';
 
     try {
@@ -192,17 +166,14 @@ runButton.addEventListener('click', async () => {
             
             class CustomStringIO(StringIO):
                 def write(self, text):
-                    if not text.startswith("Quel est"):
-                        if text.endswith('\\n'):
-                            super().write(text)
-                        else:
-                            super().write(text + '\\n')
+                    if text.endswith('\\n'):
+                        super().write(text)
+                    else:
+                        super().write(text + '\\n')
                         
             sys.stdout = CustomStringIO()
         `);
 
-        pyodide.globals.set('__name__', '__main__');
-        
         await pyodide.runPythonAsync(code);
 
         const output = await pyodide.runPythonAsync(`sys.stdout.getvalue()`);
@@ -407,12 +378,6 @@ codeEditor.addEventListener('input', (e) => {
 });
 
 globalThis.customInput = (promptText) => {
-    return new Promise((resolve) => {
-        const value = window.prompt(promptText);
-        if (promptText.toLowerCase().includes('age')) {
-            resolve(parseInt(value) || 0);
-        } else {
-            resolve(value);
-        }
-    });
+    const value = window.prompt(promptText);
+    return value === null ? "" : value;
 }; 
