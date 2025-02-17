@@ -1,4 +1,3 @@
-
 :root {
     --primary-color: #6366f1;
     --primary-hover: #4f46e5;
@@ -834,4 +833,128 @@ body {
 
 [data-theme="dark"] #themeToggle i {
     transform: rotate(180deg);
+}
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+    background-image: radial-gradient(circle at top right, 
+        rgba(99, 102, 241, 0.15), 
+        transparent 40%),
+    radial-gradient(circle at bottom left, 
+        rgba(34, 197, 94, 0.15), 
+        transparent 40%);
+}
+
+.loader {
+    text-align: center;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--neon-glow);
+}
+
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    animation: scaleIn 0.8s ease-out;
+}
+
+.loader-icon {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.loader-icon i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    opacity: 0;
+}
+
+.loader-icon i:nth-child(1) {
+    animation: slideUp 0.6s ease-out 0.2s forwards;
+}
+
+.loader-icon i:nth-child(2) {
+    animation: slideUp 0.6s ease-out 0.4s forwards;
+}
+
+.loader-icon i:nth-child(3) {
+    animation: slideUp 0.6s ease-out 0.6s forwards;
+}
+
+.loader span {
+    font-size: 1.75rem;
+    color: var(--text-color);
+    font-weight: 500;
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out 0.8s forwards;
+}
+
+.loader-bar {
+    width: 240px;
+    height: 4px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeIn 0.3s ease-out 1s forwards;
+}
+
+.loader-progress {
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-primary);
+    animation: progress 1.2s ease-in-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes progress {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(-10%); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; visibility: visible; }
+    to { opacity: 0; visibility: hidden; }
 } 
