@@ -76,18 +76,26 @@ const clearButton = document.getElementById('clear');
 const consoleOutput = document.getElementById('consoleOutput');
 const clearConsoleButton = document.getElementById('clearConsole');
 
+let scrollTimeout;
+codeEditor.addEventListener('scroll', () => {
+    if (!scrollTimeout) {
+        scrollTimeout = setTimeout(() => {
+            lineNumbers.scrollTop = codeEditor.scrollTop;
+            scrollTimeout = null;
+        }, 10);
+    }
+}, { passive: true });
+
 function updateLineNumbers() {
-    const lines = codeEditor.value.split('\n');
-    lineNumbers.innerHTML = lines.map((_, index) => index + 1).join('<br>');
+    requestAnimationFrame(() => {
+        const lines = codeEditor.value.split('\n');
+        lineNumbers.innerHTML = lines.map((_, index) => index + 1).join('<br>');
+    });
 }
 
 updateLineNumbers();
 
 codeEditor.addEventListener('input', updateLineNumbers);
-codeEditor.addEventListener('scroll', () => {
-    lineNumbers.scrollTop = codeEditor.scrollTop;
-});
-
 codeEditor.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
         e.preventDefault();
@@ -214,37 +222,31 @@ clearButton.addEventListener('click', () => {
 });
 
 function createNewFile() {
-    const fileName = window.prompt("Nom du fichier (max 16 caractères) :", "nouveau_fichier.py");
-    if (!fileName) return;
+    createModal('Nouveau fichier', 'nouveau_fichier.py').then(fileName => {
+        if (!fileName) return;
 
-    const baseName = fileName.replace('.py', '');
-    if (baseName.length > 16) {
-        alert("Le nom du fichier ne doit pas dépasser 16 caractères");
-        return;
-    }
+        const baseName = fileName.replace('.py', '');
+        if (baseName.length > 16) {
+            alert("Le nom du fichier ne doit pas dépasser 16 caractères");
+            return;
+        }
 
-    if (!fileName.endsWith('.py')) {
-        alert("Le fichier doit avoir l'extension .py");
-        return;
-    }
+        const newFile = {
+            id: Date.now(),
+            name: baseName.endsWith('.py') ? baseName : baseName + '.py',
+            content: ''
+        };
 
-    const newFile = {
-        id: Date.now(),
-        name: `${baseName}.py`,
-        content: ''
-    };
-
-    files.push(newFile);
-    currentFile = newFile;
-    updateFileExplorer();
-    codeEditor.value = '';
-    updateLineNumbers();
+        files.push(newFile);
+        currentFile = newFile;
+        updateFileExplorer();
+        codeEditor.value = '';
+        updateLineNumbers();
+    });
 }
 
 function updateFileExplorer() {
-    const fileExplorer = document.getElementById('fileExplorer');
-    fileExplorer.innerHTML = '';
-
+    const fragment = document.createDocumentFragment();
     files.forEach(file => {
         const fileElement = document.createElement('div');
         fileElement.className = 'file-item' + (currentFile && currentFile.id === file.id ? ' active' : '');
@@ -286,9 +288,12 @@ function updateFileExplorer() {
         
         fileElement.addEventListener('click', () => switchFile(file));
         
-        fileExplorer.appendChild(fileElement);
+        fragment.appendChild(fileElement);
     });
-
+    
+    const fileExplorer = document.getElementById('fileExplorer');
+    fileExplorer.innerHTML = '';
+    fileExplorer.appendChild(fragment);
     document.getElementById('currentFileName').textContent = currentFile.name;
 }
 
@@ -303,26 +308,94 @@ function switchFile(file) {
     updateFileExplorer();
 }
 
-function deleteFile(fileId) {
-    if (!confirm('Voulez-vous vraiment supprimer ce fichier ?')) return;
-
-    const index = files.findIndex(f => f.id === fileId);
-    if (index !== -1) {
-        files.splice(index, 1);
-        if (currentFile && currentFile.id === fileId) {
-            currentFile = files[0] || null;
-            codeEditor.value = currentFile ? currentFile.content : '';
-            updateLineNumbers();
-        }
-        updateFileExplorer();
+function createModal(title, content, onConfirm, type = 'input') {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-container';
+    
+    const header = document.createElement('div');
+    header.className = 'modal-header';
+    header.innerHTML = `<h3>${title}</h3>`;
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    
+    if (type === 'input') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'modal-input';
+        input.value = content;
+        modalContent.appendChild(input);
+    } else {
+        modalContent.innerHTML = `<p>${content}</p>`;
     }
+    
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
+    
+    if (type !== 'alert') {
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'modal-button secondary';
+        cancelButton.textContent = 'Annuler';
+        actions.appendChild(cancelButton);
+        
+        cancelButton.onclick = () => {
+            close();
+            resolve(null);
+        };
+    }
+    
+    const confirmButton = document.createElement('button');
+    confirmButton.className = 'modal-button primary';
+    confirmButton.textContent = type === 'input' ? 'Renommer' : 
+                               type === 'confirm' ? 'Supprimer' : 'OK';
+    actions.appendChild(confirmButton);
+    
+    modal.appendChild(header);
+    modal.appendChild(modalContent);
+    modal.appendChild(actions);
+    overlay.appendChild(modal);
+    
+    document.body.appendChild(overlay);
+    
+    setTimeout(() => overlay.classList.add('active'), 0);
+    
+    if (type === 'input') {
+        const input = modalContent.querySelector('input');
+        input.focus();
+        input.select();
+    }
+    
+    return new Promise((resolve) => {
+        const close = () => {
+            overlay.classList.remove('active');
+            setTimeout(() => document.body.removeChild(overlay), 300);
+        };
+        
+        confirmButton.onclick = () => {
+            const value = type === 'input' ? modalContent.querySelector('input').value : true;
+            close();
+            resolve(value);
+        };
+        
+        if (type !== 'alert') {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    close();
+                    resolve(null);
+                }
+            });
+        }
+    });
 }
 
-function renameFile(fileId) {
+async function renameFile(fileId) {
     const file = files.find(f => f.id === fileId);
     if (!file) return;
 
-    const newName = window.prompt("Nouveau nom du fichier (max 16 caractères) :", file.name);
+    const newName = await createModal('Renommer le fichier', file.name);
     if (!newName) return;
 
     const baseName = newName.replace('.py', '');
@@ -333,6 +406,41 @@ function renameFile(fileId) {
 
     file.name = baseName.endsWith('.py') ? baseName : baseName + '.py';
     updateFileExplorer();
+}
+
+async function deleteFile(fileId) {
+    const file = files.find(f => f.id === fileId);
+    if (!file) return;
+
+    if (files.length <= 1) {
+        await createModal(
+            'Suppression impossible',
+            'Il doit toujours y avoir au moins un fichier dans l\'explorateur.',
+            null,
+            'alert'
+        );
+        return;
+    }
+
+    const confirmed = await createModal(
+        'Supprimer le fichier',
+        `Voulez-vous vraiment supprimer "${file.name}" ?`,
+        null,
+        'confirm'
+    );
+
+    if (!confirmed) return;
+
+    const index = files.findIndex(f => f.id === fileId);
+    if (index !== -1) {
+        files.splice(index, 1);
+        if (currentFile && currentFile.id === fileId) {
+            currentFile = files[0];
+            codeEditor.value = currentFile.content;
+            updateLineNumbers();
+        }
+        updateFileExplorer();
+    }
 }
 
 updateFileExplorer();
