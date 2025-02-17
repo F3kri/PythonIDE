@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Web IDE</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Explorateur</h3>
+                <button id="newFile"><i class="fas fa-plus"></i> Nouveau fichier</button>
+            </div>
+            <div id="fileExplorer"></div>
+        </div>
+        <div class="main-content">
+            <div class="toolbar">
+                <div class="current-file">
+                    <i class="fas fa-file-code"></i>
+                    <span id="currentFileName">undefined.py</span>
+                </div>
+                <div class="toolbar-actions">
+                    <button id="run"><i class="fas fa-play"></i><span>Exécuter</span></button>
+                    <button id="save"><i class="fas fa-save"></i><span>Sauvegarder</span></button>
+                    <button id="clear"><i class="fas fa-eraser"></i><span>Effacer</span></button>
+                    <button id="themeToggle"><i class="fas fa-moon"></i><span>Thème</span></button>
+                </div>
+            </div>
+            <div class="editor-container">
+                <div class="line-numbers" id="lineNumbers"></div>
+                <textarea id="codeEditor" spellcheck="false" placeholder="Écrivez votre code Python ici..."></textarea>
+            </div>
+            <div class="console">
+                <div class="console-header">
+                    <h3>Console Python</h3>
+                    <button id="clearConsole"><i class="fas fa-trash"></i></button>
+                </div>
+                <div id="consoleOutput"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pyodide/0.21.3/pyodide.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html> 
