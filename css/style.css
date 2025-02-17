@@ -288,6 +288,13 @@ body {
     z-index: 2;
     position: relative;
     width: 3rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.line-number {
+    height: 1.7rem; /* Même que line-height du texte */
+    line-height: 1.7rem;
 }
 
 #codeEditor {

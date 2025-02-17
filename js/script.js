@@ -89,7 +89,14 @@ codeEditor.addEventListener('scroll', () => {
 function updateLineNumbers() {
     requestAnimationFrame(() => {
         const lines = codeEditor.value.split('\n');
-        lineNumbers.innerHTML = lines.map((_, index) => index + 1).join('<br>');
+        const lineCount = lines.length;
+        const lineNumbersHTML = [];
+        
+        for (let i = 0; i < lineCount; i++) {
+            lineNumbersHTML.push(`<div class="line-number">${i + 1}</div>`);
+        }
+        
+        lineNumbers.innerHTML = lineNumbersHTML.join('');
     });
 }
 
