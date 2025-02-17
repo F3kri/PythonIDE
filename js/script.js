@@ -8,6 +8,14 @@ let currentFile = {
 let files = [];
 files.push(currentFile);
 
+let currentLanguage = 'python';
+
+function setLanguage(extension) {
+    currentLanguage = extension === '.py' ? 'python' : 'javascript';
+    const runButton = document.getElementById('run');
+    runButton.title = currentLanguage === 'python' ? 'Exécuter Python' : 'Exécuter JavaScript';
+}
+
 async function initPyodide() {
     try {
         pyodide = await loadPyodide({
@@ -18,27 +26,29 @@ async function initPyodide() {
             import sys
             from js import customInput
             
-            async def input(prompt_text=""):
-                result = await customInput(prompt_text)
-                return result
+            def input(prompt_text=""):
+                return customInput(prompt_text)
             
             def int_input(prompt_text=""):
-                result = input(prompt_text)
-                if hasattr(result, 'then'):
-                    result = await result
-                return int(result)
+                value = input(prompt_text)
+                return int(value)
                 
             __builtins__.input = input
             __builtins__.int_input = int_input
         `);
-        
-        console.log("Pyodide chargé avec succès");
     } catch (error) {
-        console.error("Erreur lors du chargement de Pyodide:", error);
+        consoleOutput.innerHTML += `<div class="error-message">${error.message}</div>`;
     }
 }
 
-window.addEventListener('load', initPyodide);
+window.addEventListener('load', () => {
+    setTimeout(async () => {
+        const loadingScreen = document.getElementById('loading-screen');
+        loadingScreen.style.opacity = '0';
+        loadingScreen.style.visibility = 'hidden';
+        await initPyodide();
+    }, 1500);
+});
 
 const codeEditor = document.getElementById('codeEditor');
 const lineNumbers = document.getElementById('lineNumbers');
@@ -135,6 +145,33 @@ function createInputArea(promptText) {
 }
 
 runButton.addEventListener('click', async () => {
+    if (currentFile.name.endsWith('.js')) {
+        try {
+            consoleOutput.innerHTML = '';
+            const code = codeEditor.value;
+            const originalConsoleLog = console.log;
+            const originalConsoleError = console.error;
+
+            console.log = (...args) => {
+                consoleOutput.innerHTML += `<div class="output-message">${args.join(' ')}</div>`;
+            };
+            console.error = (...args) => {
+                consoleOutput.innerHTML += `<div class="error-message">${args.join(' ')}</div>`;
+            };
+
+            const result = eval(code);
+            if (result !== undefined) {
+                consoleOutput.innerHTML += `<div class="output-message">${result}</div>`;
+            }
+
+            console.log = originalConsoleLog;
+            console.error = originalConsoleError;
+        } catch (error) {
+            consoleOutput.innerHTML += `<div class="error-message">${error.message}</div>`;
+        }
+        return;
+    }
+
     if (!pyodide) {
         consoleOutput.innerHTML += '<div class="error-message">Pyodide n\'est pas encore chargé. Veuillez patienter...</div>';
         return;
@@ -274,6 +311,7 @@ function switchFile(file) {
     }
     currentFile = file;
     codeEditor.value = file.content;
+    setLanguage(file.name.endsWith('.js') ? '.js' : '.py');
     updateLineNumbers();
     updateFileExplorer();
 }
@@ -345,6 +383,14 @@ const pythonKeywords = [
     'return', 'True', 'try', 'while', 'with', 'yield'
 ];
 
+const jsKeywords = [
+    'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 
+    'default', 'delete', 'do', 'else', 'export', 'extends', 'finally', 
+    'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'return', 
+    'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 
+    'while', 'with', 'yield', 'let', 'static', 'enum', 'await', 'async'
+];
+
 codeEditor.addEventListener('input', (e) => {
     const cursorPos = codeEditor.selectionStart;
     const textBeforeCursor = codeEditor.value.substring(0, cursorPos);
@@ -352,14 +398,21 @@ codeEditor.addEventListener('input', (e) => {
     const currentWord = words[words.length - 1];
 
     if (currentWord.length >= 2) {
-        const matches = pythonKeywords.filter(word => word.startsWith(currentWord));
+        const keywords = currentLanguage === 'python' ? pythonKeywords : jsKeywords;
+        const matches = keywords.filter(word => word.startsWith(currentWord));
         if (matches.length > 0) {
-            console.log('Suggestions Python:', matches);
+            console.log(`Suggestions ${currentLanguage}:`, matches);
         }
     }
 });
 
-globalThis.customInput = async (promptText) => {
-    const userInput = await createInputArea(promptText);
-    return userInput;
+globalThis.customInput = (promptText) => {
+    return new Promise((resolve) => {
+        const value = window.prompt(promptText);
+        if (promptText.toLowerCase().includes('age')) {
+            resolve(parseInt(value) || 0);
+        } else {
+            resolve(value);
+        }
+    });
 }; 
