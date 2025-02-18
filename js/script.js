@@ -10,6 +10,13 @@ files.push(currentFile);
 
 let currentLanguage = 'python';
 
+let syntaxColors = JSON.parse(localStorage.getItem('syntaxColors')) || {
+    keywordColor: '#60a5fa',
+    stringColor: '#34d399',
+    functionColor: '#f59e0b',
+    numberColor: '#f87171'
+};
+
 function setLanguage(extension) {
     currentLanguage = extension === '.py' ? 'python' : 'javascript';
     const runButton = document.getElementById('run');
@@ -327,8 +334,8 @@ function createModal(title, content, onConfirm, type = 'input') {
     
     const confirmButton = document.createElement('button');
     confirmButton.className = 'modal-button primary';
-    confirmButton.textContent = title === 'Nouveau fichier' ? 'Créer' :
-                               title === 'Renommer le fichier' ? 'Renommer' :
+    confirmButton.textContent = type === 'input' && title === 'Renommer le fichier' ? 'Renommer' : 
+                               type === 'input' && title === 'Nouveau fichier' ? 'Créer' :
                                type === 'confirm' ? 'Supprimer' : 'OK';
     actions.appendChild(confirmButton);
     
@@ -353,11 +360,25 @@ function createModal(title, content, onConfirm, type = 'input') {
             setTimeout(() => document.body.removeChild(overlay), 300);
         };
         
-        confirmButton.onclick = () => {
-            const value = type === 'input' ? modalContent.querySelector('input').value : true;
-            close();
-            resolve(value);
-        };
+        if (type === 'colors') {
+            modalContent.innerHTML = content;
+            confirmButton.onclick = () => {
+                const colors = {
+                    keywordColor: document.getElementById('keywordColor').value,
+                    stringColor: document.getElementById('stringColor').value,
+                    functionColor: document.getElementById('functionColor').value,
+                    numberColor: document.getElementById('numberColor').value
+                };
+                close();
+                resolve(colors);
+            };
+        } else {
+            confirmButton.onclick = () => {
+                const value = type === 'input' ? modalContent.querySelector('input').value : true;
+                close();
+                resolve(value);
+            };
+        }
         
         if (type !== 'alert') {
             overlay.addEventListener('click', (e) => {
@@ -545,10 +566,101 @@ const themes = ['default', 'monokai', 'dracula'];
 let currentThemeIndex = 0;
 
 syntaxThemeButton.addEventListener('click', () => {
-    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-    document.body.setAttribute('data-syntax-theme', themes[currentThemeIndex]);
-    updateCodeHighlighting();
+    createModal(
+        'Thème de syntaxe',
+        `<div class="syntax-theme-options">
+            <div class="syntax-color-option">
+                <label>Mots-clés (if, for, while...)</label>
+                <input type="color" id="keywordColor" value="${syntaxColors.keywordColor}">
+            </div>
+            <div class="syntax-color-option">
+                <label>Chaînes de caractères</label>
+                <input type="color" id="stringColor" value="${syntaxColors.stringColor}">
+            </div>
+            <div class="syntax-color-option">
+                <label>Fonctions</label>
+                <input type="color" id="functionColor" value="${syntaxColors.functionColor}">
+            </div>
+            <div class="syntax-color-option">
+                <label>Nombres</label>
+                <input type="color" id="numberColor" value="${syntaxColors.numberColor}">
+            </div>
+        </div>`,
+        null,
+        'colors'
+    ).then(colors => {
+        if (colors) {
+            updateSyntaxColors(colors);
+        }
+    });
 });
+
+function updateSyntaxColors(colors) {
+    syntaxColors = colors; // Mettre à jour les couleurs en mémoire
+    localStorage.setItem('syntaxColors', JSON.stringify(colors)); // Sauvegarder dans localStorage
+
+    const style = document.createElement('style');
+    style.textContent = `
+        .token.keyword { color: ${colors.keywordColor} !important; }
+        .token.string { color: ${colors.stringColor} !important; }
+        .token.function { color: ${colors.functionColor} !important; }
+        .token.number { color: ${colors.numberColor} !important; }
+    `;
+
+    const oldStyle = document.getElementById('syntax-colors');
+    if (oldStyle) {
+        oldStyle.remove();
+    }
+
+    style.id = 'syntax-colors';
+    document.head.appendChild(style);
+    updateCodeHighlighting();
+}
 
 // Initialiser le thème par défaut
 document.body.setAttribute('data-syntax-theme', 'default');
+
+// Ajouter après l'initialisation de l'éditeur
+// Appliquer les couleurs sauvegardées au chargement
+if (syntaxColors) {
+    updateSyntaxColors(syntaxColors);
+}
+
+codeEditor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = codeEditor.selectionStart;
+        const end = codeEditor.selectionEnd;
+        codeEditor.value = codeEditor.value.substring(0, start) + "    " + codeEditor.value.substring(end);
+        codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
+        updateCodeHighlighting();
+    } else if (e.key === 'Enter') {
+        const start = codeEditor.selectionStart;
+        const textBeforeCursor = codeEditor.value.substring(0, start);
+        const lines = textBeforeCursor.split('\n');
+        const currentLine = lines[lines.length - 1];
+        
+        // Compter les tabulations de la ligne courante
+        const currentIndent = currentLine.match(/^ */)[0].length;
+        let newIndent = currentIndent;
+        
+        // Vérifier si la ligne se termine par ":"
+        if (currentLine.trim().endsWith(':')) {
+            e.preventDefault();
+            newIndent = currentIndent + 4; // Ajouter une tabulation
+            codeEditor.value = codeEditor.value.substring(0, start) + 
+                             "\n" + " ".repeat(newIndent) + 
+                             codeEditor.value.substring(start);
+            codeEditor.selectionStart = codeEditor.selectionEnd = start + newIndent + 1;
+            updateCodeHighlighting();
+        } else {
+            // Conserver l'indentation courante
+            e.preventDefault();
+            codeEditor.value = codeEditor.value.substring(0, start) + 
+                             "\n" + " ".repeat(currentIndent) + 
+                             codeEditor.value.substring(start);
+            codeEditor.selectionStart = codeEditor.selectionEnd = start + currentIndent + 1;
+            updateCodeHighlighting();
+        }
+    }
+});

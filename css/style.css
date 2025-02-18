@@ -1294,4 +1294,40 @@ body {
 
 [data-syntax-theme="dracula"] .token.string { color: #f1fa8c; }
 [data-syntax-theme="dracula"] .token.keyword { color: #ff79c6; }
-[data-syntax-theme="dracula"] .token.function { color: #50fa7b; } 
+[data-syntax-theme="dracula"] .token.function { color: #50fa7b; }
+
+.syntax-theme-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.syntax-color-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.syntax-color-option label {
+    flex: 1;
+    color: var(--text-color);
+}
+
+.syntax-color-option input[type="color"] {
+    width: 50px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+}
+
+.syntax-color-option input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.syntax-color-option input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: var(--border-radius);
+} 
