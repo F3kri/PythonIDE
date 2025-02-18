@@ -1281,4 +1281,17 @@ body {
 
 #fileExplorer::-webkit-scrollbar-thumb:hover {
     background: rgba(99, 102, 241, 0.3);
-} 
+}
+
+/* Ajouter les différents thèmes de coloration */
+[data-syntax-theme="default"] .token.string { color: #34d399; }
+[data-syntax-theme="default"] .token.keyword { color: #60a5fa; }
+[data-syntax-theme="default"] .token.function { color: #f59e0b; }
+
+[data-syntax-theme="monokai"] .token.string { color: #e6db74; }
+[data-syntax-theme="monokai"] .token.keyword { color: #f92672; }
+[data-syntax-theme="monokai"] .token.function { color: #a6e22e; }
+
+[data-syntax-theme="dracula"] .token.string { color: #f1fa8c; }
+[data-syntax-theme="dracula"] .token.keyword { color: #ff79c6; }
+[data-syntax-theme="dracula"] .token.function { color: #50fa7b; } 

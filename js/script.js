@@ -538,3 +538,17 @@ function switchFile(file) {
 
 codeEditor.value = currentFile.content;  // Initialiser le contenu de l'éditeur
 updateCodeHighlighting();  // Mettre à jour la coloration syntaxique 
+
+// Ajouter la gestion du thème de syntaxe
+const syntaxThemeButton = document.getElementById('syntaxTheme');
+const themes = ['default', 'monokai', 'dracula'];
+let currentThemeIndex = 0;
+
+syntaxThemeButton.addEventListener('click', () => {
+    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+    document.body.setAttribute('data-syntax-theme', themes[currentThemeIndex]);
+    updateCodeHighlighting();
+});
+
+// Initialiser le thème par défaut
+document.body.setAttribute('data-syntax-theme', 'default');
