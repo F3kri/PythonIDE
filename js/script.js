@@ -327,7 +327,8 @@ function createModal(title, content, onConfirm, type = 'input') {
     
     const confirmButton = document.createElement('button');
     confirmButton.className = 'modal-button primary';
-    confirmButton.textContent = type === 'input' ? 'Renommer' : 
+    confirmButton.textContent = title === 'Nouveau fichier' ? 'Créer' :
+                               title === 'Renommer le fichier' ? 'Renommer' :
                                type === 'confirm' ? 'Supprimer' : 'OK';
     actions.appendChild(confirmButton);
     
