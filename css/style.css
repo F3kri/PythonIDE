@@ -990,6 +990,9 @@ body {
     transition: opacity 0.3s ease;
     display: flex;
     gap: 0.25rem;
+    background: var(--bg-color);
+    padding: 0.25rem;
+    border-radius: var(--border-radius);
 }
 
 .file-item:hover .file-actions {
@@ -1003,10 +1006,12 @@ body {
     padding: 0.25rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    border-radius: 4px;
 }
 
 .file-actions button:hover {
     color: var(--primary-color);
+    background: var(--sidebar-bg);
 }
 
 #themeToggle {
