@@ -664,3 +664,36 @@ codeEditor.addEventListener('keydown', (e) => {
         }
     }
 });
+
+codeEditor.addEventListener('keypress', (e) => {
+    const pairs = {
+        '"': '"',
+        "'": "'",
+        '(': ')',
+        '[': ']',
+        '{': '}'
+    };
+
+    if (pairs[e.key]) {
+        e.preventDefault();
+        const start = codeEditor.selectionStart;
+        const end = codeEditor.selectionEnd;
+        
+        // Si du texte est sélectionné
+        if (start !== end) {
+            const selectedText = codeEditor.value.substring(start, end);
+            codeEditor.value = codeEditor.value.substring(0, start) + 
+                             e.key + selectedText + pairs[e.key] + 
+                             codeEditor.value.substring(end);
+            codeEditor.selectionStart = start;
+            codeEditor.selectionEnd = end + 2;
+        } else {
+            // Si aucun texte n'est sélectionné
+            codeEditor.value = codeEditor.value.substring(0, start) + 
+                             e.key + pairs[e.key] + 
+                             codeEditor.value.substring(end);
+            codeEditor.selectionStart = codeEditor.selectionEnd = start + 1;
+        }
+        updateCodeHighlighting();
+    }
+});
