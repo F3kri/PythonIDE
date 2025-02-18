@@ -82,16 +82,38 @@ body {
     border: var(--glass-border);
     position: relative;
     overflow: hidden;
+    transition: width 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 48px;
+    padding: 1rem 0.5rem;
+}
+
+.sidebar.collapsed .sidebar-header h3,
+.sidebar.collapsed #newFile,
+.sidebar.collapsed #fileExplorer {
+    display: none;
+}
+
+.sidebar.collapsed #toggleSidebar {
+    margin: 0 auto;
+}
+
+.sidebar.collapsed #toggleSidebar i {
+    transform: rotate(180deg);
 }
 
 .sidebar-header {
-    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .sidebar-header h3 {
     font-size: 1.25rem;
     color: var(--primary-color);
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     font-weight: 600;
     position: relative;
     overflow: hidden;
@@ -281,6 +303,7 @@ body {
     border: var(--glass-border);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
     position: relative;
+    transition: flex 0.3s ease;
 }
 
 #codeEditor {
@@ -406,6 +429,11 @@ body {
     border: var(--glass-border);
     position: relative;
     overflow: hidden;
+    transition: height 0.3s ease;
+}
+
+.console.collapsed {
+    height: 48px;
 }
 
 .console::after {
@@ -464,6 +492,24 @@ body {
 
 .console-header button:hover {
     transform: rotate(90deg);
+}
+
+.console-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.console-actions button {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.console-actions button:hover {
+    color: var(--primary-color);
 }
 
 #consoleOutput {
@@ -661,42 +707,74 @@ body {
 }
 
 .file-item {
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    border-radius: var(--border-radius);
-    background: rgba(99, 102, 241, 0.05);
+    padding: 0.4rem 0;
+    margin-bottom: 0.2rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    transition: all 0.3s ease;
-    width: 100%;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    position: relative;
+    border-radius: 4px;
 }
 
 .file-item:hover {
     background: rgba(99, 102, 241, 0.1);
-    transform: translateX(8px) scale(1.02);
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.folder-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding-right: 0.75rem;
+}
+
+.file-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding-right: 0.75rem;
+}
+
+.folder-arrow {
+    width: 12px;
+    transition: transform 0.2s ease;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.folder-icon {
+    color: #dcb67a;
+}
+
+.fa-file-code {
+    color: #519aba;
+}
+
+.folder-content {
+    width: 100%;
 }
 
 .file-item.active {
     background: rgba(99, 102, 241, 0.15);
-    border-right: 3px solid var(--primary-color);
-}
-
-.file-item i {
-    color: var(--primary-color);
-    font-size: 1rem;
 }
 
 .file-item span {
     flex: 1;
-    margin: 0 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.file-item i.fa-file-code {
-    color: var(--primary-color);
-    font-size: 1rem;
+.file-actions {
+    opacity: 0;
+    margin-left: auto;
+}
+
+.file-item:hover .file-actions {
+    opacity: 1;
 }
 
 .delete-file {
@@ -1330,4 +1408,71 @@ body {
 .syntax-color-option input[type="color"]::-webkit-color-swatch {
     border: none;
     border-radius: var(--border-radius);
-} 
+}
+
+.file-item {
+    transition: padding-left 0.3s ease;
+}
+
+.file-item:hover {
+    background: rgba(99, 102, 241, 0.1);
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar-toggle,
+.toolbar.collapsed,
+.toolbar.collapsed .toolbar-toggle,
+.toolbar.collapsed + .editor-container {
+    display: none;
+}
+
+.sidebar-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sidebar-title h3 {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin: 0;
+}
+
+#toggleSidebar {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+}
+
+#toggleSidebar:hover {
+    color: var(--primary-color);
+    opacity: 1;
+}
+
+.sidebar.collapsed .sidebar-header h3,
+.sidebar.collapsed #newFile span,
+.sidebar.collapsed #fileExplorer {
+    display: none;
+}
+
+.sidebar.collapsed #newFile {
+    width: 32px;
+    padding: 0.5rem;
+}
+
+.sidebar.collapsed #toggleSidebar i {
+    transform: rotate(180deg);
+}

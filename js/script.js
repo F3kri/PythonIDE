@@ -232,54 +232,145 @@ function createNewFile() {
 
 function updateFileExplorer() {
     const fragment = document.createDocumentFragment();
+    
+    // Créer une structure arborescente
+    const treeStructure = {};
     files.forEach(file => {
-        const fileElement = document.createElement('div');
-        fileElement.className = 'file-item' + (currentFile && currentFile.id === file.id ? ' active' : '');
+        const path = (file.path || file.name).split('/');
+        let current = treeStructure;
         
-        const fileIcon = document.createElement('i');
-        fileIcon.className = 'fas fa-file-code';
+        // Créer les dossiers parents
+        for (let i = 0; i < path.length - 1; i++) {
+            if (!current[path[i]]) {
+                current[path[i]] = { type: 'folder', content: {}, isOpen: true };
+            }
+            current = current[path[i]].content;
+        }
         
-        const fileName = document.createElement('span');
-        fileName.title = file.name;
-        fileName.textContent = file.name;
-        
-        const fileActions = document.createElement('div');
-        fileActions.className = 'file-actions';
-        
-        const renameButton = document.createElement('button');
-        renameButton.innerHTML = '<i class="fas fa-edit"></i>';
-        renameButton.title = 'Renommer';
-        
-        const deleteButton = document.createElement('button');
-        deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-        deleteButton.title = 'Supprimer';
-        
-        fileActions.appendChild(renameButton);
-        fileActions.appendChild(deleteButton);
-        
-        fileElement.appendChild(fileIcon);
-        fileElement.appendChild(fileName);
-        fileElement.appendChild(fileActions);
-        
-        renameButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            renameFile(file.id);
-        });
-        
-        deleteButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteFile(file.id);
-        });
-        
-        fileElement.addEventListener('click', () => switchFile(file));
-        
-        fragment.appendChild(fileElement);
+        // Ajouter le fichier
+        const fileName = path[path.length - 1];
+        current[fileName] = { type: 'file', data: file };
     });
+
+    // Fonction récursive pour créer l'interface
+    function createTreeElement(structure, level = 0) {
+        const items = [];
+        
+        // Trier : dossiers d'abord, puis fichiers
+        const sorted = Object.entries(structure).sort(([, a], [, b]) => {
+            if (a.type === b.type) return 0;
+            return a.type === 'folder' ? -1 : 1;
+        });
+
+        for (const [name, item] of sorted) {
+            const element = document.createElement('div');
+            element.className = 'file-item';
+
+            if (item.type === 'folder') {
+                element.style.paddingLeft = `${level * 1.2 + 0.75}rem`;
+                element.innerHTML = `
+                    <div class="folder-header">
+                        <i class="fas ${item.isOpen ? 'fa-chevron-down' : 'fa-chevron-right'} folder-arrow"></i>
+                        <i class="fas fa-folder${item.isOpen ? '-open' : ''} folder-icon"></i>
+                        <span>${name}</span>
+                    </div>
+                `;
+
+                const folderContent = document.createElement('div');
+                folderContent.className = 'folder-content';
+                folderContent.style.display = item.isOpen ? 'block' : 'none';
+                
+                // Récursion pour le contenu du dossier
+                const children = createTreeElement(item.content, level + 1);
+                children.forEach(child => folderContent.appendChild(child));
+                element.appendChild(folderContent);
+
+                // Gestionnaire de clic pour ouvrir/fermer le dossier
+                element.querySelector('.folder-header').addEventListener('click', () => {
+                    item.isOpen = !item.isOpen;
+                    element.querySelector('.folder-arrow').className = 
+                        `fas ${item.isOpen ? 'fa-chevron-down' : 'fa-chevron-right'} folder-arrow`;
+                    element.querySelector('.folder-icon').className = 
+                        `fas fa-folder${item.isOpen ? '-open' : ''} folder-icon`;
+                    folderContent.style.display = item.isOpen ? 'block' : 'none';
+                });
+            } else {
+                element.style.paddingLeft = `${(level + 1) * 1.2 + 0.75}rem`;
+                element.innerHTML = `
+                    <div class="file-content">
+                        <i class="fas fa-file-code"></i>
+                        <span>${name}</span>
+                        <div class="file-actions">
+                            <button class="rename-file"><i class="fas fa-edit"></i></button>
+                            <button class="delete-file"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+
+                // Ajouter les gestionnaires d'événements pour les boutons
+                element.querySelector('.rename-file').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    createModal('Renommer le fichier', item.data.name).then(newName => {
+                        if (newName && newName !== item.data.name) {
+                            const extension = item.data.name.split('.').pop();
+                            const baseName = newName.replace('.' + extension, '');
+                            
+                            if (baseName.length > 16) {
+                                alert("Le nom du fichier ne doit pas dépasser 16 caractères");
+                                return;
+                            }
+                            
+                            item.data.name = baseName.endsWith('.' + extension) ? baseName : baseName + '.' + extension;
+                            updateFileExplorer();
+                        }
+                    });
+                });
+
+                element.querySelector('.delete-file').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Vérifier si c'est le dernier fichier
+                    if (files.length <= 1) {
+                        createModal('Action impossible', 'Impossible de supprimer le dernier fichier.', null, 'alert');
+                        return;
+                    }
+                    
+                    createModal('Supprimer le fichier', `Voulez-vous vraiment supprimer "${item.data.name}" ?`, null, 'confirm')
+                        .then(confirmed => {
+                            if (confirmed) {
+                                files = files.filter(f => f.id !== item.data.id);
+                                if (currentFile && currentFile.id === item.data.id) {
+                                    currentFile = files[0];
+                                    codeEditor.value = currentFile.content;
+                                    document.getElementById('currentFileName').textContent = currentFile.name;
+                                    updateCodeHighlighting();
+                                }
+                                updateFileExplorer();
+                            }
+                        });
+                });
+
+                if (currentFile && currentFile.id === item.data.id) {
+                    element.classList.add('active');
+                }
+
+                element.addEventListener('click', (e) => {
+                    if (!e.target.closest('.file-actions')) {
+                        switchFile(item.data);
+                    }
+                });
+            }
+            items.push(element);
+        }
+        return items;
+    }
+
+    const elements = createTreeElement(treeStructure);
+    elements.forEach(element => fragment.appendChild(element));
     
     const fileExplorer = document.getElementById('fileExplorer');
     fileExplorer.innerHTML = '';
     fileExplorer.appendChild(fragment);
-    document.getElementById('currentFileName').textContent = currentFile.name;
 }
 
 function switchFile(file) {
@@ -696,4 +787,32 @@ codeEditor.addEventListener('keypress', (e) => {
         }
         updateCodeHighlighting();
     }
+});
+
+// Supprimer tout le code concernant la barre d'outils et ne garder que la console
+const toggleConsoleBtn = document.getElementById('toggleConsole');
+const consoleContainer = document.querySelector('.console');
+const editorContainer = document.querySelector('.editor-container');
+
+toggleConsoleBtn.addEventListener('click', () => {
+    const isCollapsed = consoleContainer.classList.toggle('collapsed');
+    toggleConsoleBtn.querySelector('i').className = isCollapsed ? 
+        'fas fa-chevron-up' : 'fas fa-chevron-down';
+    
+    // Ajuster la taille de l'éditeur
+    if (isCollapsed) {
+        editorContainer.style.flex = '1';
+    } else {
+        editorContainer.style.flex = '1';
+    }
+});
+
+// Ajouter après les autres constantes
+const toggleSidebarBtn = document.getElementById('toggleSidebar');
+const sidebar = document.querySelector('.sidebar');
+
+toggleSidebarBtn.addEventListener('click', () => {
+    const isCollapsed = sidebar.classList.toggle('collapsed');
+    toggleSidebarBtn.querySelector('i').className = isCollapsed ? 
+        'fas fa-chevron-right' : 'fas fa-chevron-left';
 });
