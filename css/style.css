@@ -409,14 +409,37 @@ body {
     color: #ec4899;
 }
 
-[data-theme="light"] .token.comment { color: #6b7280; }
-[data-theme="light"] .token.punctuation { color: inherit; }
-[data-theme="light"] .token.property { color: #dc2626; }
-[data-theme="light"] .token.string { color: #059669; }
-[data-theme="light"] .token.operator { color: inherit; }
-[data-theme="light"] .token.keyword { color: #2563eb; }
-[data-theme="light"] .token.function { color: #d97706; }
-[data-theme="light"] .token.variable { color: #db2777; }
+[data-theme="light"] .token.comment {
+    color: #6b7280;
+}
+
+[data-theme="light"] .token.punctuation {
+    color: inherit;
+}
+
+[data-theme="light"] .token.property {
+    color: #dc2626;
+}
+
+[data-theme="light"] .token.string {
+    color: #059669;
+}
+
+[data-theme="light"] .token.operator {
+    color: inherit;
+}
+
+[data-theme="light"] .token.keyword {
+    color: #2563eb;
+}
+
+[data-theme="light"] .token.function {
+    color: #d97706;
+}
+
+[data-theme="light"] .token.variable {
+    color: #db2777;
+}
 
 .console {
     height: 200px;
@@ -490,9 +513,10 @@ body {
     border: 0;
 }
 
-.console-header button:hover {
-    transform: rotate(90deg);
+.console-header #toggleConsole i:hover {
+    transform: rotate(180deg);
 }
+
 
 .console-actions {
     display: flex;
@@ -510,6 +534,10 @@ body {
 
 .console-actions button:hover {
     color: var(--primary-color);
+}
+
+#clearConsole:hover i {
+    color: var(--error-color);
 }
 
 #consoleOutput {
@@ -649,14 +677,6 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-}
-
-.modal-content {
-    background: var(--bg-color);
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
 }
 
 .modal-title {
@@ -1120,11 +1140,10 @@ body {
     align-items: center;
     z-index: 9999;
     transition: all 0.5s ease;
-    background: linear-gradient(135deg, 
-        var(--bg-color), 
-        rgba(99, 102, 241, 0.1),
-        var(--bg-color)
-    );
+    background: linear-gradient(135deg,
+            var(--bg-color),
+            rgba(99, 102, 241, 0.1),
+            var(--bg-color));
 }
 
 .loader {
@@ -1145,12 +1164,10 @@ body {
     left: -100%;
     width: 200%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(99, 102, 241, 0.2),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(99, 102, 241, 0.2),
+            transparent);
     animation: shimmer 2s infinite;
 }
 
@@ -1225,24 +1242,49 @@ body {
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
 @keyframes shimmer {
-    100% { left: 100%; }
+    100% {
+        left: 100%;
+    }
 }
 
 @keyframes typing {
-    0% { content: 'Initialisation'; }
-    33% { content: 'Initialisation.'; }
-    66% { content: 'Initialisation..'; }
-    100% { content: 'Initialisation...'; }
+    0% {
+        content: 'Initialisation';
+    }
+
+    33% {
+        content: 'Initialisation.';
+    }
+
+    66% {
+        content: 'Initialisation..';
+    }
+
+    100% {
+        content: 'Initialisation...';
+    }
 }
 
 @keyframes progress-animation {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(100%); }
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
 }
 
 .modal-overlay {
@@ -1362,17 +1404,41 @@ body {
 }
 
 /* Ajouter les différents thèmes de coloration */
-[data-syntax-theme="default"] .token.string { color: #34d399; }
-[data-syntax-theme="default"] .token.keyword { color: #60a5fa; }
-[data-syntax-theme="default"] .token.function { color: #f59e0b; }
+[data-syntax-theme="default"] .token.string {
+    color: #34d399;
+}
 
-[data-syntax-theme="monokai"] .token.string { color: #e6db74; }
-[data-syntax-theme="monokai"] .token.keyword { color: #f92672; }
-[data-syntax-theme="monokai"] .token.function { color: #a6e22e; }
+[data-syntax-theme="default"] .token.keyword {
+    color: #60a5fa;
+}
 
-[data-syntax-theme="dracula"] .token.string { color: #f1fa8c; }
-[data-syntax-theme="dracula"] .token.keyword { color: #ff79c6; }
-[data-syntax-theme="dracula"] .token.function { color: #50fa7b; }
+[data-syntax-theme="default"] .token.function {
+    color: #f59e0b;
+}
+
+[data-syntax-theme="monokai"] .token.string {
+    color: #e6db74;
+}
+
+[data-syntax-theme="monokai"] .token.keyword {
+    color: #f92672;
+}
+
+[data-syntax-theme="monokai"] .token.function {
+    color: #a6e22e;
+}
+
+[data-syntax-theme="dracula"] .token.string {
+    color: #f1fa8c;
+}
+
+[data-syntax-theme="dracula"] .token.keyword {
+    color: #ff79c6;
+}
+
+[data-syntax-theme="dracula"] .token.function {
+    color: #50fa7b;
+}
 
 .syntax-theme-options {
     display: flex;
@@ -1423,7 +1489,7 @@ body {
 .toolbar-toggle,
 .toolbar.collapsed,
 .toolbar.collapsed .toolbar-toggle,
-.toolbar.collapsed + .editor-container {
+.toolbar.collapsed+.editor-container {
     display: none;
 }
 
