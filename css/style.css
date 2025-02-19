@@ -1688,3 +1688,10 @@ body {
 .sidebar.collapsed #toggleSidebar i {
     transform: rotate(180deg);
 }
+
+.chat-message-container {
+    border: rgba(0, 0, 0, 0.594) solid ;
+} 
+.chat-message {
+    margin-top: -45px !important;
+} 
