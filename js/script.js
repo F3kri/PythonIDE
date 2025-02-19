@@ -17,6 +17,39 @@ let syntaxColors = JSON.parse(localStorage.getItem('syntaxColors')) || {
     numberColor: '#f87171'
 };
 
+// Ajouter après les constantes au début du fichier
+const pythonSuggestions = {
+    'pr': 'print()',
+    'inp': 'input()',
+    'def': 'def function_name():',
+    'for': 'for i in range():',
+    'if': 'if condition:',
+    'wh': 'while condition:',
+    'try': 'try:\n    \nexcept Exception as e:',
+    'imp': 'import ',
+    'cls': 'class ClassName:',
+    'ret': 'return ',
+    'len': 'len()',
+    'str': 'str()',
+    'int': 'int()',
+    'lis': 'list()',
+    'ran': 'range()',
+};
+
+const jsSuggestions = {
+    'con': 'console.log()',
+    'fun': 'function name() {\n    \n}',
+    'for': 'for (let i = 0; i < n; i++) {\n    \n}',
+    'if': 'if (condition) {\n    \n}',
+    'wh': 'while (condition) {\n    \n}',
+    'try': 'try {\n    \n} catch (error) {\n    \n}',
+    'let': 'let  = ',
+    'con': 'const  = ',
+    'imp': 'import  from ""',
+    'cls': 'class  {\n    constructor() {\n        \n    }\n}',
+    'ret': 'return ',
+};
+
 function setLanguage(extension) {
     currentLanguage = extension === '.py' ? 'python' : 'javascript';
     const runButton = document.getElementById('run');
@@ -28,7 +61,7 @@ async function initPyodide() {
         pyodide = await loadPyodide({
             indexURL: "https://cdn.jsdelivr.net/pyodide/v0.21.3/full/"
         });
-
+        
         await pyodide.runPythonAsync(`
             import sys
             from js import customInput
@@ -72,41 +105,6 @@ window.addEventListener('load', () => {
         loadingScreen.style.opacity = '0';
         loadingScreen.style.visibility = 'hidden';
         initPyodide();
-        // Ajouter un compteur de ligne à l'éditeur de code
-        const codeEditor = document.getElementById('codeEditor');
-
-        // Créer un élément pour afficher les numéros de ligne
-        const lineNumbersContainer = document.createElement('div');
-        lineNumbersContainer.className = 'line-numbers-container';
-
-        // Ajouter le conteneur de numéros de ligne en dessous du codeEditor
-        codeEditor.parentNode.insertBefore(lineNumbersContainer, codeEditor.nextSibling);
-
-        // Mettre à jour les numéros de ligne
-        function updateLineNumbers() {
-            const lines = codeEditor.value.split('\n');
-            let lineNumbersHTML = '';
-
-            lines.forEach((_, index) => {
-                lineNumbersHTML += `<span>${index + 1}</span>`;
-            });
-
-            lineNumbersContainer.innerHTML = lineNumbersHTML;
-        }
-
-        // Mettre à jour les numéros de ligne au démarrage
-        updateLineNumbers();
-
-        // Mettre à jour les numéros de ligne à chaque modification du texte
-        codeEditor.addEventListener('input', updateLineNumbers);
-
-        // Mettre à jour les numéros de ligne lors du scroll de la text area
-        codeEditor.addEventListener('scroll', () => {
-            lineNumbersContainer.scrollTop = codeEditor.scrollTop;
-        });
-
-        // Initialiser les numéros de ligne
-        updateLineNumbers();
     }, 2400);
 });
 
@@ -116,7 +114,6 @@ const saveButton = document.getElementById('save');
 const clearButton = document.getElementById('clear');
 const consoleOutput = document.getElementById('consoleOutput');
 const clearConsoleButton = document.getElementById('clearConsole');
-const maxConsaleButton = document.getElementById('maxConsale');
 
 let scrollTimeout;
 codeEditor.addEventListener('scroll', () => {
@@ -131,42 +128,42 @@ function createCustomPrompt(message, title) {
     return new Promise((resolve) => {
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
-
+        
         const modalContent = document.createElement('div');
         modalContent.className = 'modal-content';
-
+        
         const modalTitle = document.createElement('div');
         modalTitle.className = 'modal-title';
         modalTitle.textContent = title;
-
+        
         const modalMessage = document.createElement('div');
         modalMessage.className = 'modal-message';
         modalMessage.textContent = message;
-
+        
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'modal-input';
-
+        
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'modal-buttons';
-
+        
         const okButton = document.createElement('button');
         okButton.textContent = 'OK';
         okButton.onclick = () => {
             document.body.removeChild(modal);
             resolve(input.value);
         };
-
+        
         buttonContainer.appendChild(okButton);
         modalContent.appendChild(modalTitle);
         modalContent.appendChild(modalMessage);
         modalContent.appendChild(input);
         modalContent.appendChild(buttonContainer);
         modal.appendChild(modalContent);
-
+        
         document.body.appendChild(modal);
         input.focus();
-
+        
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 okButton.click();
@@ -181,7 +178,7 @@ function createInputArea(promptText) {
 
     return new Promise((resolve) => {
         const value = window.prompt(promptText);
-
+        
         isWaitingForInput = false;
         if (promptText.toLowerCase().includes('age')) {
             resolve(parseInt(value) || 0);
@@ -198,10 +195,10 @@ runButton.addEventListener('click', async () => {
     }
 
     let code = codeEditor.value;
-
+    
     // Remplacer tous les int(input(...)) par int_input(...)
     code = code.replace(/int\(input\((.*?)\)\)/g, 'int_input($1)');
-
+    
     consoleOutput.innerHTML = '';
 
     try {
@@ -237,13 +234,6 @@ clearConsoleButton.addEventListener('click', () => {
     consoleOutput.innerHTML = '';
 });
 
-maxConsaleButton.addEventListener('click', () => {
-    const mainContent = document.querySelector('.main-content')
-    const isCollapsed = mainContent.classList.toggle('collapsedm');
-    maxConsaleButton.querySelector('i').className = isCollapsed ?
-        'fas fa-chevron-down' : 'fas fa-chevron-up';
-});
-
 clearButton.addEventListener('click', () => {
     codeEditor.value = '';
     updateCodeHighlighting();
@@ -275,13 +265,13 @@ function createNewFile() {
 
 function updateFileExplorer() {
     const fragment = document.createDocumentFragment();
-
+    
     // Créer une structure arborescente
     const treeStructure = {};
     files.forEach(file => {
         const path = (file.path || file.name).split('/');
         let current = treeStructure;
-
+        
         // Créer les dossiers parents
         for (let i = 0; i < path.length - 1; i++) {
             if (!current[path[i]]) {
@@ -289,7 +279,7 @@ function updateFileExplorer() {
             }
             current = current[path[i]].content;
         }
-
+        
         // Ajouter le fichier
         const fileName = path[path.length - 1];
         current[fileName] = { type: 'file', data: file };
@@ -298,7 +288,7 @@ function updateFileExplorer() {
     // Fonction récursive pour créer l'interface
     function createTreeElement(structure, level = 0) {
         const items = [];
-
+        
         // Trier : dossiers d'abord, puis fichiers
         const sorted = Object.entries(structure).sort(([, a], [, b]) => {
             if (a.type === b.type) return 0;
@@ -322,7 +312,7 @@ function updateFileExplorer() {
                 const folderContent = document.createElement('div');
                 folderContent.className = 'folder-content';
                 folderContent.style.display = item.isOpen ? 'block' : 'none';
-
+                
                 // Récursion pour le contenu du dossier
                 const children = createTreeElement(item.content, level + 1);
                 children.forEach(child => folderContent.appendChild(child));
@@ -331,9 +321,9 @@ function updateFileExplorer() {
                 // Gestionnaire de clic pour ouvrir/fermer le dossier
                 element.querySelector('.folder-header').addEventListener('click', () => {
                     item.isOpen = !item.isOpen;
-                    element.querySelector('.folder-arrow').className =
+                    element.querySelector('.folder-arrow').className = 
                         `fas ${item.isOpen ? 'fa-chevron-down' : 'fa-chevron-right'} folder-arrow`;
-                    element.querySelector('.folder-icon').className =
+                    element.querySelector('.folder-icon').className = 
                         `fas fa-folder${item.isOpen ? '-open' : ''} folder-icon`;
                     folderContent.style.display = item.isOpen ? 'block' : 'none';
                 });
@@ -357,12 +347,12 @@ function updateFileExplorer() {
                         if (newName && newName !== item.data.name) {
                             const extension = item.data.name.split('.').pop();
                             const baseName = newName.replace('.' + extension, '');
-
+                            
                             if (baseName.length > 16) {
                                 alert("Le nom du fichier ne doit pas dépasser 16 caractères");
                                 return;
                             }
-
+                            
                             item.data.name = baseName.endsWith('.' + extension) ? baseName : baseName + '.' + extension;
                             updateFileExplorer();
                         }
@@ -371,13 +361,13 @@ function updateFileExplorer() {
 
                 element.querySelector('.delete-file').addEventListener('click', (e) => {
                     e.stopPropagation();
-
+                    
                     // Vérifier si c'est le dernier fichier
                     if (files.length <= 1) {
                         createModal('Action impossible', 'Impossible de supprimer le dernier fichier.', null, 'alert');
                         return;
                     }
-
+                    
                     createModal('Supprimer le fichier', `Voulez-vous vraiment supprimer "${item.data.name}" ?`, null, 'confirm')
                         .then(confirmed => {
                             if (confirmed) {
@@ -410,7 +400,7 @@ function updateFileExplorer() {
 
     const elements = createTreeElement(treeStructure);
     elements.forEach(element => fragment.appendChild(element));
-
+    
     const fileExplorer = document.getElementById('fileExplorer');
     fileExplorer.innerHTML = '';
     fileExplorer.appendChild(fragment);
@@ -430,17 +420,17 @@ function switchFile(file) {
 function createModal(title, content, onConfirm, type = 'input') {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
-
+    
     const modal = document.createElement('div');
     modal.className = 'modal-container';
-
+    
     const header = document.createElement('div');
     header.className = 'modal-header';
     header.innerHTML = `<h3>${title}</h3>`;
-
+    
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
-
+    
     if (type === 'input') {
         const input = document.createElement('input');
         input.type = 'text';
@@ -450,50 +440,50 @@ function createModal(title, content, onConfirm, type = 'input') {
     } else {
         modalContent.innerHTML = `<p>${content}</p>`;
     }
-
+    
     const actions = document.createElement('div');
     actions.className = 'modal-actions';
-
+    
     if (type !== 'alert') {
         const cancelButton = document.createElement('button');
         cancelButton.className = 'modal-button secondary';
         cancelButton.textContent = 'Annuler';
         actions.appendChild(cancelButton);
-
+        
         cancelButton.onclick = () => {
             close();
             resolve(null);
         };
     }
-
+    
     const confirmButton = document.createElement('button');
     confirmButton.className = 'modal-button primary';
-    confirmButton.textContent = type === 'input' && title === 'Renommer le fichier' ? 'Renommer' :
-        type === 'input' && title === 'Nouveau fichier' ? 'Créer' :
-            type === 'confirm' ? 'Supprimer' : 'OK';
+    confirmButton.textContent = type === 'input' && title === 'Renommer le fichier' ? 'Renommer' : 
+                               type === 'input' && title === 'Nouveau fichier' ? 'Créer' :
+                               type === 'confirm' ? 'Supprimer' : 'OK';
     actions.appendChild(confirmButton);
-
+    
     modal.appendChild(header);
     modal.appendChild(modalContent);
     modal.appendChild(actions);
     overlay.appendChild(modal);
-
+    
     document.body.appendChild(overlay);
-
+    
     setTimeout(() => overlay.classList.add('active'), 0);
-
+    
     if (type === 'input') {
         const input = modalContent.querySelector('input');
         input.focus();
         input.select();
     }
-
+    
     return new Promise((resolve) => {
         const close = () => {
             overlay.classList.remove('active');
             setTimeout(() => document.body.removeChild(overlay), 300);
         };
-
+        
         if (type === 'colors') {
             modalContent.innerHTML = content;
             confirmButton.onclick = () => {
@@ -513,7 +503,7 @@ function createModal(title, content, onConfirm, type = 'input') {
                 resolve(value);
             };
         }
-
+        
         if (type !== 'alert') {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
@@ -589,7 +579,7 @@ themeToggle.addEventListener('click', () => {
     const currentTheme = document.body.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.body.setAttribute('data-theme', newTheme);
-
+    
     themeIcon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
 });
 
@@ -612,10 +602,10 @@ const pythonKeywords = [
 ];
 
 const jsKeywords = [
-    'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
-    'default', 'delete', 'do', 'else', 'export', 'extends', 'finally',
-    'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'return',
-    'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void',
+    'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 
+    'default', 'delete', 'do', 'else', 'export', 'extends', 'finally', 
+    'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'return', 
+    'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 
     'while', 'with', 'yield', 'let', 'static', 'enum', 'await', 'async'
 ];
 
@@ -642,29 +632,29 @@ globalThis.customInput = (promptText) => {
 function updateCodeHighlighting() {
     // Obtenir le code
     const code = codeEditor.value;
-
+    
     // Créer un élément pre temporaire pour la coloration
     const preElement = document.createElement('pre');
     preElement.className = currentLanguage === 'python' ? 'language-python' : 'language-javascript';
-
+    
     // Créer un élément code pour le contenu
     const codeElement = document.createElement('code');
     codeElement.className = currentLanguage === 'python' ? 'language-python' : 'language-javascript';
     codeElement.textContent = code;
-
+    
     preElement.appendChild(codeElement);
-
+    
     // Appliquer la coloration syntaxique
     Prism.highlightElement(codeElement);
-
+    
     // Mettre à jour le contenu de l'éditeur
     const highlightedContent = codeElement.innerHTML;
-
+    
     // Créer un div pour contenir le texte coloré
     const highlightLayer = document.createElement('div');
     highlightLayer.className = 'highlight-layer';
     highlightLayer.innerHTML = highlightedContent;
-
+    
     // Mettre à jour la couche de coloration
     const existingLayer = document.querySelector('.highlight-layer');
     if (existingLayer) {
@@ -761,41 +751,45 @@ if (syntaxColors) {
 }
 
 codeEditor.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
+    // Si une suggestion est affichée
+    if (suggestionBox.style.display === 'block') {
+        const items = suggestionBox.querySelectorAll('.suggestion-item');
+        const activeItem = suggestionBox.querySelector('.suggestion-item.active') || items[0];
+        let activeIndex = Array.from(items).indexOf(activeItem);
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActiveItem(items, activeIndex);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                activeIndex = activeIndex <= 0 ? items.length - 1 : activeIndex - 1;
+                updateActiveItem(items, activeIndex);
+                break;
+            case 'Tab':
+            case 'Enter':
+                e.preventDefault(); // Empêcher l'ajout d'espace ou de saut de ligne
+                if (items.length > 0) {
+                    const textBeforeCursor = codeEditor.value.substring(0, codeEditor.selectionStart);
+                    const lastWord = textBeforeCursor.split(/[\s\n]/).pop();
+                    applySuggestion(activeItem.textContent, lastWord);
+                }
+                break;
+            case 'Escape':
+                e.preventDefault();
+                suggestionBox.style.display = 'none';
+                break;
+        }
+    } else if (e.key === 'Tab') {
+        // Comportement normal de la tabulation quand il n'y a pas de suggestions
         e.preventDefault();
         const start = codeEditor.selectionStart;
         const end = codeEditor.selectionEnd;
         codeEditor.value = codeEditor.value.substring(0, start) + "    " + codeEditor.value.substring(end);
         codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
         updateCodeHighlighting();
-    } else if (e.key === 'Enter') {
-        const start = codeEditor.selectionStart;
-        const textBeforeCursor = codeEditor.value.substring(0, start);
-        const lines = textBeforeCursor.split('\n');
-        const currentLine = lines[lines.length - 1];
-
-        // Compter les tabulations de la ligne courante
-        const currentIndent = currentLine.match(/^ */)[0].length;
-        let newIndent = currentIndent;
-
-        // Vérifier si la ligne se termine par ":"
-        if (currentLine.trim().endsWith(':')) {
-            e.preventDefault();
-            newIndent = currentIndent + 4; // Ajouter une tabulation
-            codeEditor.value = codeEditor.value.substring(0, start) +
-                "\n" + " ".repeat(newIndent) +
-                codeEditor.value.substring(start);
-            codeEditor.selectionStart = codeEditor.selectionEnd = start + newIndent + 1;
-            updateCodeHighlighting();
-        } else {
-            // Conserver l'indentation courante
-            e.preventDefault();
-            codeEditor.value = codeEditor.value.substring(0, start) +
-                "\n" + " ".repeat(currentIndent) +
-                codeEditor.value.substring(start);
-            codeEditor.selectionStart = codeEditor.selectionEnd = start + currentIndent + 1;
-            updateCodeHighlighting();
-        }
     }
 });
 
@@ -812,20 +806,20 @@ codeEditor.addEventListener('keypress', (e) => {
         e.preventDefault();
         const start = codeEditor.selectionStart;
         const end = codeEditor.selectionEnd;
-
+        
         // Si du texte est sélectionné
         if (start !== end) {
             const selectedText = codeEditor.value.substring(start, end);
-            codeEditor.value = codeEditor.value.substring(0, start) +
-                e.key + selectedText + pairs[e.key] +
-                codeEditor.value.substring(end);
+            codeEditor.value = codeEditor.value.substring(0, start) + 
+                             e.key + selectedText + pairs[e.key] + 
+                             codeEditor.value.substring(end);
             codeEditor.selectionStart = start;
             codeEditor.selectionEnd = end + 2;
         } else {
             // Si aucun texte n'est sélectionné
-            codeEditor.value = codeEditor.value.substring(0, start) +
-                e.key + pairs[e.key] +
-                codeEditor.value.substring(end);
+            codeEditor.value = codeEditor.value.substring(0, start) + 
+                             e.key + pairs[e.key] + 
+                             codeEditor.value.substring(end);
             codeEditor.selectionStart = codeEditor.selectionEnd = start + 1;
         }
         updateCodeHighlighting();
@@ -839,9 +833,9 @@ const editorContainer = document.querySelector('.editor-container');
 
 toggleConsoleBtn.addEventListener('click', () => {
     const isCollapsed = consoleContainer.classList.toggle('collapsed');
-    toggleConsoleBtn.querySelector('i').className = isCollapsed ?
+    toggleConsoleBtn.querySelector('i').className = isCollapsed ? 
         'fas fa-chevron-up' : 'fas fa-chevron-down';
-
+    
     // Ajuster la taille de l'éditeur
     if (isCollapsed) {
         editorContainer.style.flex = '1';
@@ -856,6 +850,407 @@ const sidebar = document.querySelector('.sidebar');
 
 toggleSidebarBtn.addEventListener('click', () => {
     const isCollapsed = sidebar.classList.toggle('collapsed');
-    toggleSidebarBtn.querySelector('i').className = isCollapsed ?
+    toggleSidebarBtn.querySelector('i').className = isCollapsed ? 
         'fas fa-chevron-right' : 'fas fa-chevron-left';
+});
+
+// Ajouter cette fonction pour créer la boîte de suggestions
+function createSuggestionBox() {
+    const box = document.createElement('div');
+    box.id = 'suggestionBox';
+    box.style.cssText = `
+        position: absolute;
+        background: var(--editor-bg);
+        border: 1px solid var(--primary-color);
+        border-radius: 4px;
+        max-height: 150px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1000;
+        box-shadow: var(--box-shadow);
+    `;
+    document.querySelector('.editor-container').appendChild(box);
+    return box;
+}
+
+// Créer la boîte de suggestions
+const suggestionBox = createSuggestionBox();
+
+// Modifier l'événement input de l'éditeur
+codeEditor.addEventListener('input', (e) => {
+    updateCodeHighlighting();
+
+    const cursorPos = codeEditor.selectionStart;
+    const textBeforeCursor = codeEditor.value.substring(0, cursorPos);
+    const lastWord = textBeforeCursor.split(/[\s\n]/).pop();
+
+    if (lastWord && lastWord.length >= 2) {
+        const suggestions = currentLanguage === 'python' ? pythonSuggestions : jsSuggestions;
+        const matches = Object.entries(suggestions)
+            .filter(([key]) => key.startsWith(lastWord))
+            .map(([key, value]) => value);
+
+        if (matches.length > 0) {
+            showSuggestions(matches, lastWord);
+        } else {
+            suggestionBox.style.display = 'none';
+        }
+    } else {
+        suggestionBox.style.display = 'none';
+    }
+});
+
+function showSuggestions(suggestions, word) {
+    const { left, top, height } = getCaretCoordinates();
+    
+    suggestionBox.innerHTML = suggestions
+        .map(suggestion => `<div class="suggestion-item">${suggestion}</div>`)
+        .join('');
+    
+    suggestionBox.style.display = 'block';
+    suggestionBox.style.left = `${left}px`;
+    suggestionBox.style.top = `${top + height}px`;
+
+    const items = suggestionBox.querySelectorAll('.suggestion-item');
+    // Activer le premier item par défaut
+    if (items.length > 0) {
+        items[0].classList.add('active');
+    }
+
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            applySuggestion(item.textContent, word);
+        });
+    });
+}
+
+function getCaretCoordinates() {
+    const position = codeEditor.selectionStart;
+    const text = codeEditor.value.substring(0, position);
+    const lines = text.split('\n');
+    const currentLine = lines.length;
+    const currentColumn = lines[lines.length - 1].length;
+
+    const lineHeight = parseInt(getComputedStyle(codeEditor).lineHeight);
+    const padding = parseInt(getComputedStyle(codeEditor).padding);
+    
+    return {
+        left: currentColumn * 8 + padding + 48, // 48px pour la gouttière
+        top: (currentLine - 1) * lineHeight + padding,
+        height: lineHeight
+    };
+}
+
+function applySuggestion(suggestion, word) {
+    const cursorPos = codeEditor.selectionStart;
+    const textBeforeCursor = codeEditor.value.substring(0, cursorPos - word.length);
+    const textAfterCursor = codeEditor.value.substring(cursorPos);
+    
+    // Nettoyer les espaces existants
+    const cleanTextAfter = textAfterCursor.trimLeft();
+    
+    // Vérifier si nous sommes à l'intérieur de parenthèses
+    const isInsideParentheses = textBeforeCursor.trim().endsWith('(') && cleanTextAfter.startsWith(')');
+    
+    let finalText;
+    if (isInsideParentheses) {
+        // Si nous sommes à l'intérieur de parenthèses, supprimer les espaces
+        finalText = textBeforeCursor.trimEnd() + suggestion.slice(0, -1) + cleanTextAfter;
+    } else {
+        finalText = textBeforeCursor + suggestion + cleanTextAfter;
+    }
+    
+    codeEditor.value = finalText;
+    
+    // Placer le curseur à l'intérieur des parenthèses si présentes
+    const newCursorPos = textBeforeCursor.length + suggestion.length;
+    if (suggestion.includes('()')) {
+        codeEditor.selectionStart = codeEditor.selectionEnd = newCursorPos - 1;
+    } else {
+        codeEditor.selectionStart = codeEditor.selectionEnd = newCursorPos;
+    }
+    
+    suggestionBox.style.display = 'none';
+    updateCodeHighlighting();
+}
+
+// Ajouter les styles CSS pour les suggestions
+const style = document.createElement('style');
+style.textContent = `
+    .suggestion-item {
+        padding: 4px 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .suggestion-item:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    #suggestionBox::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #suggestionBox::-webkit-scrollbar-track {
+        background: rgba(99, 102, 241, 0.1);
+    }
+    
+    #suggestionBox::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
+`;
+document.head.appendChild(style);
+
+// Modifier l'événement keydown de l'éditeur
+codeEditor.addEventListener('keydown', (e) => {
+    if (suggestionBox.style.display === 'block') {
+        const items = suggestionBox.querySelectorAll('.suggestion-item');
+        const activeItem = suggestionBox.querySelector('.suggestion-item.active') || items[0];
+        let activeIndex = Array.from(items).indexOf(activeItem);
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActiveItem(items, activeIndex);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                activeIndex = activeIndex <= 0 ? items.length - 1 : activeIndex - 1;
+                updateActiveItem(items, activeIndex);
+                break;
+            case 'Tab':
+            case 'Enter':
+                e.preventDefault(); // Empêcher l'ajout d'espace ou de saut de ligne
+                if (items.length > 0) {
+                    const textBeforeCursor = codeEditor.value.substring(0, codeEditor.selectionStart);
+                    const lastWord = textBeforeCursor.split(/[\s\n]/).pop();
+                    applySuggestion(activeItem.textContent, lastWord);
+                }
+                break;
+            case 'Escape':
+                e.preventDefault();
+                suggestionBox.style.display = 'none';
+                break;
+        }
+    } else if (e.key === 'Tab') {
+        // Comportement normal de la tabulation quand il n'y a pas de suggestions
+        e.preventDefault();
+        const start = codeEditor.selectionStart;
+        const end = codeEditor.selectionEnd;
+        codeEditor.value = codeEditor.value.substring(0, start) + "    " + codeEditor.value.substring(end);
+        codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
+        updateCodeHighlighting();
+    }
+});
+
+function updateActiveItem(items, activeIndex) {
+    items.forEach(item => item.classList.remove('active'));
+    items[activeIndex].classList.add('active');
+    items[activeIndex].scrollIntoView({ block: 'nearest' });
+}
+
+// Fonction pour créer la fenêtre de chat
+function createAIChatWindow() {
+    const chatWindow = document.createElement('div');
+    chatWindow.className = 'ai-chat-window';
+    chatWindow.innerHTML = `
+        <div class="chat-header">
+            <h3><i class="fas fa-robot"></i> Assistant IA</h3>
+            <div class="chat-actions">
+                <button class="reset-chat" title="Réinitialiser la discussion">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <button class="close-chat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="chat-messages"></div>
+        <div class="chat-input">
+            <textarea placeholder="..."></textarea>
+            <button class="send-message"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    `;
+    document.body.appendChild(chatWindow);
+
+    // Ajouter la fonctionnalité de déplacement
+    const header = chatWindow.querySelector('.chat-header');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    header.addEventListener('mousedown', startDragging);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDragging);
+
+    function startDragging(e) {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+        if (e.target.closest('.chat-header')) {
+            isDragging = true;
+        }
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+            xOffset = currentX;
+            yOffset = currentY;
+            chatWindow.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        }
+    }
+
+    function stopDragging() {
+        isDragging = false;
+    }
+
+    return chatWindow;
+}
+
+// Styles pour la fenêtre de chat
+const aiStyles = document.createElement('style');
+aiStyles.textContent = `
+    .ai-chat-window {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        height: 500px;
+        background: var(--glass-bg);
+        border: var(--glass-border);
+        border-radius: var(--border-radius);
+        display: flex;
+        flex-direction: column;
+        backdrop-filter: var(--glass-blur);
+        box-shadow: var(--box-shadow);
+        z-index: 1000;
+        display: none;
+        user-select: none;
+    }
+
+    .chat-header {
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+        cursor: move;
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .chat-header h3 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        user-select: text;
+    }
+
+    .chat-input {
+        padding: 1rem;
+        display: flex;
+        gap: 0.5rem;
+        border-top: 1px solid rgba(99, 102, 241, 0.1);
+        background: var(--glass-bg);
+    }
+
+    .chat-input textarea {
+        flex: 1;
+        padding: 0.75rem;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: var(--border-radius);
+        background: rgba(99, 102, 241, 0.05);
+        color: var(--text-color);
+        resize: none;
+        height: 40px;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .chat-actions button {
+        background: none;
+        border: none;
+        color: var(--text-color);
+        cursor: pointer;
+        padding: 0.5rem;
+        transition: all 0.3s ease;
+        opacity: 0.7;
+    }
+
+    .chat-actions button:hover {
+        opacity: 1;
+        transform: scale(1.1);
+        color: var(--primary-color);
+    }
+
+    .send-message {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--box-shadow);
+    }
+
+    .send-message:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--neon-glow);
+        background: var(--primary-hover);
+    }
+
+    .send-message i {
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .send-message:hover i {
+        transform: translateX(2px);
+    }
+`;
+document.head.appendChild(aiStyles);
+
+// Initialisation de la fenêtre de chat
+const aiHelper = document.getElementById('aiHelper');
+const chatWindow = createAIChatWindow();
+let isChatVisible = false;
+
+// Gestionnaires d'événements pour l'ouverture/fermeture
+aiHelper.addEventListener('click', () => {
+    isChatVisible = !isChatVisible;
+    chatWindow.style.display = isChatVisible ? 'flex' : 'none';
+});
+
+const closeChat = chatWindow.querySelector('.close-chat');
+closeChat.addEventListener('click', () => {
+    chatWindow.style.display = 'none';
+    isChatVisible = false;
+});
+
+// Gestionnaire pour le bouton de réinitialisation
+const resetButton = chatWindow.querySelector('.reset-chat');
+resetButton.addEventListener('click', () => {
+    const chatMessages = chatWindow.querySelector('.chat-messages');
+    chatMessages.innerHTML = '';
 });
