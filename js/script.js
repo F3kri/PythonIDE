@@ -1414,3 +1414,40 @@ resetButton.addEventListener('click', () => {
     const chatMessages = chatWindow.querySelector('.chat-messages');
     chatMessages.innerHTML = '';
 });
+
+if (window.innerWidth <= 920) {
+    //display a message
+    alert('Le site est actuellement indisponible pour cette taille d\'écran');
+    // disable the site
+    document.body.style.pointerEvents = 'none';
+    //add un div with a message on the center 
+    const messageDiv = document.createElement('div');
+    const messageDiv2 = document.createElement('div');
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.9);
+        z-index:999999;
+    `;
+
+    messageDiv2.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.5rem;
+        color: white;
+        text-align: center;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000000;
+    `;
+    messageDiv2.textContent = 'Le site est actuellement indisponible pour cette taille d\'écran';
+    document.body.appendChild(messageDiv);
+    messageDiv.appendChild(messageDiv2)
+}
