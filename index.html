@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Web IDE</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
 </head>
+
 <body>
+
     <div id="loading-screen">
         <div class="loader">
             <div class="loader-content">
@@ -60,6 +64,7 @@
                 <div class="console-header">
                     <h3>Console Python</h3>
                     <div class="console-actions">
+                        <button id="maxConsale"><i class="fas fa-chevron-up"></i></button>
                         <button id="clearConsole"><i class="fas fa-trash"></i></button>
                         <button id="toggleConsole"><i class="fas fa-chevron-down"></i></button>
                     </div>
@@ -73,4 +78,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pyodide/0.21.3/pyodide.js"></script>
     <script src="js/script.js"></script>
 </body>
-</html> 
+
+</html>
