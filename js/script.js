@@ -28,7 +28,7 @@ async function initPyodide() {
         pyodide = await loadPyodide({
             indexURL: "https://cdn.jsdelivr.net/pyodide/v0.21.3/full/"
         });
-        
+
         await pyodide.runPythonAsync(`
             import sys
             from js import customInput
@@ -72,6 +72,41 @@ window.addEventListener('load', () => {
         loadingScreen.style.opacity = '0';
         loadingScreen.style.visibility = 'hidden';
         initPyodide();
+        // Ajouter un compteur de ligne à l'éditeur de code
+        const codeEditor = document.getElementById('codeEditor');
+
+        // Créer un élément pour afficher les numéros de ligne
+        const lineNumbersContainer = document.createElement('div');
+        lineNumbersContainer.className = 'line-numbers-container';
+
+        // Ajouter le conteneur de numéros de ligne en dessous du codeEditor
+        codeEditor.parentNode.insertBefore(lineNumbersContainer, codeEditor.nextSibling);
+
+        // Mettre à jour les numéros de ligne
+        function updateLineNumbers() {
+            const lines = codeEditor.value.split('\n');
+            let lineNumbersHTML = '';
+
+            lines.forEach((_, index) => {
+                lineNumbersHTML += `<span>${index + 1}</span>`;
+            });
+
+            lineNumbersContainer.innerHTML = lineNumbersHTML;
+        }
+
+        // Mettre à jour les numéros de ligne au démarrage
+        updateLineNumbers();
+
+        // Mettre à jour les numéros de ligne à chaque modification du texte
+        codeEditor.addEventListener('input', updateLineNumbers);
+
+        // Mettre à jour les numéros de ligne lors du scroll de la text area
+        codeEditor.addEventListener('scroll', () => {
+            lineNumbersContainer.scrollTop = codeEditor.scrollTop;
+        });
+
+        // Initialiser les numéros de ligne
+        updateLineNumbers();
     }, 2400);
 });
 
@@ -81,6 +116,7 @@ const saveButton = document.getElementById('save');
 const clearButton = document.getElementById('clear');
 const consoleOutput = document.getElementById('consoleOutput');
 const clearConsoleButton = document.getElementById('clearConsole');
+const maxConsaleButton = document.getElementById('maxConsale');
 
 let scrollTimeout;
 codeEditor.addEventListener('scroll', () => {
@@ -95,42 +131,42 @@ function createCustomPrompt(message, title) {
     return new Promise((resolve) => {
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
-        
+
         const modalContent = document.createElement('div');
         modalContent.className = 'modal-content';
-        
+
         const modalTitle = document.createElement('div');
         modalTitle.className = 'modal-title';
         modalTitle.textContent = title;
-        
+
         const modalMessage = document.createElement('div');
         modalMessage.className = 'modal-message';
         modalMessage.textContent = message;
-        
+
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'modal-input';
-        
+
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'modal-buttons';
-        
+
         const okButton = document.createElement('button');
         okButton.textContent = 'OK';
         okButton.onclick = () => {
             document.body.removeChild(modal);
             resolve(input.value);
         };
-        
+
         buttonContainer.appendChild(okButton);
         modalContent.appendChild(modalTitle);
         modalContent.appendChild(modalMessage);
         modalContent.appendChild(input);
         modalContent.appendChild(buttonContainer);
         modal.appendChild(modalContent);
-        
+
         document.body.appendChild(modal);
         input.focus();
-        
+
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 okButton.click();
@@ -145,7 +181,7 @@ function createInputArea(promptText) {
 
     return new Promise((resolve) => {
         const value = window.prompt(promptText);
-        
+
         isWaitingForInput = false;
         if (promptText.toLowerCase().includes('age')) {
             resolve(parseInt(value) || 0);
@@ -162,10 +198,10 @@ runButton.addEventListener('click', async () => {
     }
 
     let code = codeEditor.value;
-    
+
     // Remplacer tous les int(input(...)) par int_input(...)
     code = code.replace(/int\(input\((.*?)\)\)/g, 'int_input($1)');
-    
+
     consoleOutput.innerHTML = '';
 
     try {
@@ -201,6 +237,13 @@ clearConsoleButton.addEventListener('click', () => {
     consoleOutput.innerHTML = '';
 });
 
+maxConsaleButton.addEventListener('click', () => {
+    const mainContent = document.querySelector('.main-content')
+    const isCollapsed = mainContent.classList.toggle('collapsedm');
+    maxConsaleButton.querySelector('i').className = isCollapsed ?
+        'fas fa-chevron-down' : 'fas fa-chevron-up';
+});
+
 clearButton.addEventListener('click', () => {
     codeEditor.value = '';
     updateCodeHighlighting();
@@ -232,13 +275,13 @@ function createNewFile() {
 
 function updateFileExplorer() {
     const fragment = document.createDocumentFragment();
-    
+
     // Créer une structure arborescente
     const treeStructure = {};
     files.forEach(file => {
         const path = (file.path || file.name).split('/');
         let current = treeStructure;
-        
+
         // Créer les dossiers parents
         for (let i = 0; i < path.length - 1; i++) {
             if (!current[path[i]]) {
@@ -246,7 +289,7 @@ function updateFileExplorer() {
             }
             current = current[path[i]].content;
         }
-        
+
         // Ajouter le fichier
         const fileName = path[path.length - 1];
         current[fileName] = { type: 'file', data: file };
@@ -255,7 +298,7 @@ function updateFileExplorer() {
     // Fonction récursive pour créer l'interface
     function createTreeElement(structure, level = 0) {
         const items = [];
-        
+
         // Trier : dossiers d'abord, puis fichiers
         const sorted = Object.entries(structure).sort(([, a], [, b]) => {
             if (a.type === b.type) return 0;
@@ -279,7 +322,7 @@ function updateFileExplorer() {
                 const folderContent = document.createElement('div');
                 folderContent.className = 'folder-content';
                 folderContent.style.display = item.isOpen ? 'block' : 'none';
-                
+
                 // Récursion pour le contenu du dossier
                 const children = createTreeElement(item.content, level + 1);
                 children.forEach(child => folderContent.appendChild(child));
@@ -288,9 +331,9 @@ function updateFileExplorer() {
                 // Gestionnaire de clic pour ouvrir/fermer le dossier
                 element.querySelector('.folder-header').addEventListener('click', () => {
                     item.isOpen = !item.isOpen;
-                    element.querySelector('.folder-arrow').className = 
+                    element.querySelector('.folder-arrow').className =
                         `fas ${item.isOpen ? 'fa-chevron-down' : 'fa-chevron-right'} folder-arrow`;
-                    element.querySelector('.folder-icon').className = 
+                    element.querySelector('.folder-icon').className =
                         `fas fa-folder${item.isOpen ? '-open' : ''} folder-icon`;
                     folderContent.style.display = item.isOpen ? 'block' : 'none';
                 });
@@ -314,12 +357,12 @@ function updateFileExplorer() {
                         if (newName && newName !== item.data.name) {
                             const extension = item.data.name.split('.').pop();
                             const baseName = newName.replace('.' + extension, '');
-                            
+
                             if (baseName.length > 16) {
                                 alert("Le nom du fichier ne doit pas dépasser 16 caractères");
                                 return;
                             }
-                            
+
                             item.data.name = baseName.endsWith('.' + extension) ? baseName : baseName + '.' + extension;
                             updateFileExplorer();
                         }
@@ -328,13 +371,13 @@ function updateFileExplorer() {
 
                 element.querySelector('.delete-file').addEventListener('click', (e) => {
                     e.stopPropagation();
-                    
+
                     // Vérifier si c'est le dernier fichier
                     if (files.length <= 1) {
                         createModal('Action impossible', 'Impossible de supprimer le dernier fichier.', null, 'alert');
                         return;
                     }
-                    
+
                     createModal('Supprimer le fichier', `Voulez-vous vraiment supprimer "${item.data.name}" ?`, null, 'confirm')
                         .then(confirmed => {
                             if (confirmed) {
@@ -367,7 +410,7 @@ function updateFileExplorer() {
 
     const elements = createTreeElement(treeStructure);
     elements.forEach(element => fragment.appendChild(element));
-    
+
     const fileExplorer = document.getElementById('fileExplorer');
     fileExplorer.innerHTML = '';
     fileExplorer.appendChild(fragment);
@@ -387,17 +430,17 @@ function switchFile(file) {
 function createModal(title, content, onConfirm, type = 'input') {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal-container';
-    
+
     const header = document.createElement('div');
     header.className = 'modal-header';
     header.innerHTML = `<h3>${title}</h3>`;
-    
+
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
-    
+
     if (type === 'input') {
         const input = document.createElement('input');
         input.type = 'text';
@@ -407,50 +450,50 @@ function createModal(title, content, onConfirm, type = 'input') {
     } else {
         modalContent.innerHTML = `<p>${content}</p>`;
     }
-    
+
     const actions = document.createElement('div');
     actions.className = 'modal-actions';
-    
+
     if (type !== 'alert') {
         const cancelButton = document.createElement('button');
         cancelButton.className = 'modal-button secondary';
         cancelButton.textContent = 'Annuler';
         actions.appendChild(cancelButton);
-        
+
         cancelButton.onclick = () => {
             close();
             resolve(null);
         };
     }
-    
+
     const confirmButton = document.createElement('button');
     confirmButton.className = 'modal-button primary';
-    confirmButton.textContent = type === 'input' && title === 'Renommer le fichier' ? 'Renommer' : 
-                               type === 'input' && title === 'Nouveau fichier' ? 'Créer' :
-                               type === 'confirm' ? 'Supprimer' : 'OK';
+    confirmButton.textContent = type === 'input' && title === 'Renommer le fichier' ? 'Renommer' :
+        type === 'input' && title === 'Nouveau fichier' ? 'Créer' :
+            type === 'confirm' ? 'Supprimer' : 'OK';
     actions.appendChild(confirmButton);
-    
+
     modal.appendChild(header);
     modal.appendChild(modalContent);
     modal.appendChild(actions);
     overlay.appendChild(modal);
-    
+
     document.body.appendChild(overlay);
-    
+
     setTimeout(() => overlay.classList.add('active'), 0);
-    
+
     if (type === 'input') {
         const input = modalContent.querySelector('input');
         input.focus();
         input.select();
     }
-    
+
     return new Promise((resolve) => {
         const close = () => {
             overlay.classList.remove('active');
             setTimeout(() => document.body.removeChild(overlay), 300);
         };
-        
+
         if (type === 'colors') {
             modalContent.innerHTML = content;
             confirmButton.onclick = () => {
@@ -470,7 +513,7 @@ function createModal(title, content, onConfirm, type = 'input') {
                 resolve(value);
             };
         }
-        
+
         if (type !== 'alert') {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
@@ -546,7 +589,7 @@ themeToggle.addEventListener('click', () => {
     const currentTheme = document.body.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.body.setAttribute('data-theme', newTheme);
-    
+
     themeIcon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
 });
 
@@ -569,10 +612,10 @@ const pythonKeywords = [
 ];
 
 const jsKeywords = [
-    'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 
-    'default', 'delete', 'do', 'else', 'export', 'extends', 'finally', 
-    'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'return', 
-    'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 
+    'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
+    'default', 'delete', 'do', 'else', 'export', 'extends', 'finally',
+    'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'return',
+    'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void',
     'while', 'with', 'yield', 'let', 'static', 'enum', 'await', 'async'
 ];
 
@@ -599,29 +642,29 @@ globalThis.customInput = (promptText) => {
 function updateCodeHighlighting() {
     // Obtenir le code
     const code = codeEditor.value;
-    
+
     // Créer un élément pre temporaire pour la coloration
     const preElement = document.createElement('pre');
     preElement.className = currentLanguage === 'python' ? 'language-python' : 'language-javascript';
-    
+
     // Créer un élément code pour le contenu
     const codeElement = document.createElement('code');
     codeElement.className = currentLanguage === 'python' ? 'language-python' : 'language-javascript';
     codeElement.textContent = code;
-    
+
     preElement.appendChild(codeElement);
-    
+
     // Appliquer la coloration syntaxique
     Prism.highlightElement(codeElement);
-    
+
     // Mettre à jour le contenu de l'éditeur
     const highlightedContent = codeElement.innerHTML;
-    
+
     // Créer un div pour contenir le texte coloré
     const highlightLayer = document.createElement('div');
     highlightLayer.className = 'highlight-layer';
     highlightLayer.innerHTML = highlightedContent;
-    
+
     // Mettre à jour la couche de coloration
     const existingLayer = document.querySelector('.highlight-layer');
     if (existingLayer) {
@@ -730,26 +773,26 @@ codeEditor.addEventListener('keydown', (e) => {
         const textBeforeCursor = codeEditor.value.substring(0, start);
         const lines = textBeforeCursor.split('\n');
         const currentLine = lines[lines.length - 1];
-        
+
         // Compter les tabulations de la ligne courante
         const currentIndent = currentLine.match(/^ */)[0].length;
         let newIndent = currentIndent;
-        
+
         // Vérifier si la ligne se termine par ":"
         if (currentLine.trim().endsWith(':')) {
             e.preventDefault();
             newIndent = currentIndent + 4; // Ajouter une tabulation
-            codeEditor.value = codeEditor.value.substring(0, start) + 
-                             "\n" + " ".repeat(newIndent) + 
-                             codeEditor.value.substring(start);
+            codeEditor.value = codeEditor.value.substring(0, start) +
+                "\n" + " ".repeat(newIndent) +
+                codeEditor.value.substring(start);
             codeEditor.selectionStart = codeEditor.selectionEnd = start + newIndent + 1;
             updateCodeHighlighting();
         } else {
             // Conserver l'indentation courante
             e.preventDefault();
-            codeEditor.value = codeEditor.value.substring(0, start) + 
-                             "\n" + " ".repeat(currentIndent) + 
-                             codeEditor.value.substring(start);
+            codeEditor.value = codeEditor.value.substring(0, start) +
+                "\n" + " ".repeat(currentIndent) +
+                codeEditor.value.substring(start);
             codeEditor.selectionStart = codeEditor.selectionEnd = start + currentIndent + 1;
             updateCodeHighlighting();
         }
@@ -769,20 +812,20 @@ codeEditor.addEventListener('keypress', (e) => {
         e.preventDefault();
         const start = codeEditor.selectionStart;
         const end = codeEditor.selectionEnd;
-        
+
         // Si du texte est sélectionné
         if (start !== end) {
             const selectedText = codeEditor.value.substring(start, end);
-            codeEditor.value = codeEditor.value.substring(0, start) + 
-                             e.key + selectedText + pairs[e.key] + 
-                             codeEditor.value.substring(end);
+            codeEditor.value = codeEditor.value.substring(0, start) +
+                e.key + selectedText + pairs[e.key] +
+                codeEditor.value.substring(end);
             codeEditor.selectionStart = start;
             codeEditor.selectionEnd = end + 2;
         } else {
             // Si aucun texte n'est sélectionné
-            codeEditor.value = codeEditor.value.substring(0, start) + 
-                             e.key + pairs[e.key] + 
-                             codeEditor.value.substring(end);
+            codeEditor.value = codeEditor.value.substring(0, start) +
+                e.key + pairs[e.key] +
+                codeEditor.value.substring(end);
             codeEditor.selectionStart = codeEditor.selectionEnd = start + 1;
         }
         updateCodeHighlighting();
@@ -796,9 +839,9 @@ const editorContainer = document.querySelector('.editor-container');
 
 toggleConsoleBtn.addEventListener('click', () => {
     const isCollapsed = consoleContainer.classList.toggle('collapsed');
-    toggleConsoleBtn.querySelector('i').className = isCollapsed ? 
+    toggleConsoleBtn.querySelector('i').className = isCollapsed ?
         'fas fa-chevron-up' : 'fas fa-chevron-down';
-    
+
     // Ajuster la taille de l'éditeur
     if (isCollapsed) {
         editorContainer.style.flex = '1';
@@ -813,6 +856,6 @@ const sidebar = document.querySelector('.sidebar');
 
 toggleSidebarBtn.addEventListener('click', () => {
     const isCollapsed = sidebar.classList.toggle('collapsed');
-    toggleSidebarBtn.querySelector('i').className = isCollapsed ? 
+    toggleSidebarBtn.querySelector('i').className = isCollapsed ?
         'fas fa-chevron-right' : 'fas fa-chevron-left';
 });
