@@ -661,8 +661,8 @@ body {
     border: 0;
 }
 
-.console-header button:hover {
-    transform: rotate(90deg);
+.console-header #toggleConsole i:hover {
+    transform: rotate(180deg);
 }
 
 .console-actions {
@@ -822,12 +822,8 @@ body {
     z-index: 1000;
 }
 
-.modal-content {
-    background: var(--bg-color);
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
+#clearConsole:hover i {
+    color: var(--error-color);
 }
 
 .modal-title {
