@@ -1094,13 +1094,20 @@ async function sendToIa() {
     const message = document.getElementById('ia-input').value;
     const chatMessages = document.querySelector('.chat-messages');
     const codeEditor = document.getElementById('codeEditor')
+    const consoleContainer = document.getElementById('consoleOutput')
 
-    var prompt = "Tu est un assistan de code Python pour mon IDE tu vas aidez et répondre a la question de mon client voici son code :" + codeEditor + ' . Voici sa demande :' + message + ' . Répond lui juste a sa question et pour t\'aider dans le contexte voici les anciens messages il peut ne pas y en avoir :' + chatMessages
+
+    // Créer un nouveau message avec la date et l'heure
+    var code = codeEditor.value;
+    var console = consoleContainer.innerText;
+
+    var prompt = "Tu est un assistan de code Python pour mon IDE tu vas aidez et répondre a la question de mon client voici son code :" + code + ' . Voici sa demande :' + message + ' . Répond lui juste a sa question et pour t\'aider dans le contexte voici les anciens messages il peut ne pas y en avoir :' + chatMessages + ' et la conole si tu en a besoin :' + console + 'PS : mon IDE n\'affiche pas les interface seulement une conole'
 
 
     //attend la réponse de AIgenerate(prompt) pour faire la suite
     AIgenerate(prompt);
-
+    //affiche génération en cour et block le bouton
+    document.getElementById('loding').style.display = 'flex';
 
 };
 
@@ -1108,6 +1115,7 @@ async function sendToIa() {
 
 function afficheResult(result) {
     console.log(result);
+    document.getElementById('loding').style.display = 'none';
 
     // Extraire le texte de la réponse
     const responseText = result.candidates[0].content.parts[0].text;
@@ -1122,7 +1130,7 @@ function afficheResult(result) {
     // Créer un élément pour afficher la réponse formatée
     const messageElement = document.createElement('div');
     messageElement.classList.add('chat-message');
-    messageElement.innerHTML = `<br><br>`+ marked.parse(responseText); // Convertir Markdown en HTML
+    messageElement.innerHTML = `<br><br>` + marked.parse(responseText); // Convertir Markdown en HTML
 
     // Ajouter le message formaté au conteneur
     messageContainer.appendChild(messageElement);
@@ -1204,6 +1212,11 @@ function createAIChatWindow() {
     const chatWindow = document.createElement('div');
     chatWindow.className = 'ai-chat-window';
     chatWindow.innerHTML = `
+        <div id="loding">
+            <div class="spinner">
+                <div class="spinnerin"></div>
+            </div>
+        </div>
         <div class="chat-header">
             <h3><i class="fas fa-robot"></i> Assistant IA</h3>
             <div class="chat-actions">
