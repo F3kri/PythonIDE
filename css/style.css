@@ -344,6 +344,31 @@ body {
     color: var(--text-color);
 }
 
+.line-numbers-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 48px;
+    height: 100%;
+    overflow: hidden;
+    padding: 20px 5px;
+    color: var(--text-color);
+    line-height: 1.6;
+    text-align: right;
+}
+
+.line-numbers-container span {
+    display: block;
+}
+
+.main-content.collapsedm .editor-container {
+    flex: 0.5;
+}
+
+.main-content.collapsedm .console {
+    flex: 1;
+}
+
 /* Styles pour Prism.js */
 .token.comment,
 .token.prolog,
@@ -513,10 +538,9 @@ body {
     border: 0;
 }
 
-.console-header #toggleConsole i:hover {
-    transform: rotate(180deg);
+.console-header button:hover {
+    transform: rotate(90deg);
 }
-
 
 .console-actions {
     display: flex;
@@ -534,10 +558,6 @@ body {
 
 .console-actions button:hover {
     color: var(--primary-color);
-}
-
-#clearConsole:hover i {
-    color: var(--error-color);
 }
 
 #consoleOutput {
@@ -677,6 +697,14 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+}
+
+.modal-content {
+    background: var(--bg-color);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
 }
 
 .modal-title {
