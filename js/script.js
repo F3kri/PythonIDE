@@ -84,6 +84,10 @@ async function initPyodide() {
 }
 
 window.addEventListener('load', () => {
+    const themeb = localStorage.getItem('theme');
+    if (themeb) {
+        document.body.setAttribute('data-theme', themeb);
+    }
     const loadingText = document.querySelector('.typing-text');
     const messages = [
         'Chargement...',
@@ -100,6 +104,7 @@ window.addEventListener('load', () => {
     const messageInterval = setInterval(updateMessage, 800);
 
     setTimeout(() => {
+
         clearInterval(messageInterval);
         const loadingScreen = document.getElementById('loading-screen');
         loadingScreen.style.opacity = '0';
@@ -303,6 +308,7 @@ function createNewFile() {
 function updateFileExplorer() {
     const fragment = document.createDocumentFragment();
 
+    document.getElementById('currentFileName').textContent = currentFile.name;
     // Créer une structure arborescente
     const treeStructure = {};
     files.forEach(file => {
@@ -368,7 +374,7 @@ function updateFileExplorer() {
                 element.style.paddingLeft = `${(level + 1) * 1.2 + 0.75}rem`;
                 element.innerHTML = `
                     <div class="file-content">
-                        <i class="fas fa-file-code"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="16 16 32 32"><path fill="url(#a)" d="M31.885 16c-8.124 0-7.617 3.523-7.617 3.523l.01 3.65h7.752v1.095H21.197S16 23.678 16 31.876c0 8.196 4.537 7.906 4.537 7.906h2.708v-3.804s-.146-4.537 4.465-4.537h7.688s4.32.07 4.32-4.175v-7.019S40.374 16 31.885 16zm-4.275 2.454a1.394 1.394 0 1 1 0 2.79 1.393 1.393 0 0 1-1.395-1.395c0-.771.624-1.395 1.395-1.395z"/><path fill="url(#b)" d="M32.115 47.833c8.124 0 7.617-3.523 7.617-3.523l-.01-3.65H31.97v-1.095h10.832S48 40.155 48 31.958c0-8.197-4.537-7.906-4.537-7.906h-2.708v3.803s.146 4.537-4.465 4.537h-7.688s-4.32-.07-4.32 4.175v7.019s-.656 4.247 7.833 4.247zm4.275-2.454a1.393 1.393 0 0 1-1.395-1.395 1.394 1.394 0 1 1 1.395 1.395z"/><defs><linearGradient id="a" x1="19.075" x2="34.898" y1="18.782" y2="34.658" gradientUnits="userSpaceOnUse"><stop stop-color="#387EB8"/><stop offset="1" stop-color="#366994"/></linearGradient><linearGradient id="b" x1="28.809" x2="45.803" y1="28.882" y2="45.163" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE052"/><stop offset="1" stop-color="#FFC331"/></linearGradient></defs></svg>
                         <span>${name}</span>
                         <div class="file-actions">
                             <button class="rename-file"><i class="fas fa-edit"></i></button>
@@ -455,6 +461,7 @@ function switchFile(file) {
 }
 
 function createModal(title, content, onConfirm, type = 'input') {
+    var modalinp
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
 
@@ -473,6 +480,7 @@ function createModal(title, content, onConfirm, type = 'input') {
         input.type = 'text';
         input.className = 'modal-input';
         input.value = content;
+        modalinp = input.validity
         modalContent.appendChild(input);
     } else {
         modalContent.innerHTML = `<p>${content}</p>`;
@@ -488,8 +496,9 @@ function createModal(title, content, onConfirm, type = 'input') {
         actions.appendChild(cancelButton);
 
         cancelButton.onclick = () => {
-            close();
-            resolve(null);
+            overlay.classList.remove('active');
+            setTimeout(() => document.body.removeChild(overlay), 300);
+            resolve(modalinp);
         };
     }
 
@@ -617,6 +626,8 @@ themeToggle.addEventListener('click', () => {
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.body.setAttribute('data-theme', newTheme);
 
+    localStorage.setItem('theme', newTheme);
+
     themeIcon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
 });
 
@@ -728,7 +739,7 @@ let currentThemeIndex = 0;
 
 syntaxThemeButton.addEventListener('click', () => {
     createModal(
-        'Thème de syntaxe',
+        'Syntaxe',
         `<div class="syntax-theme-options">
             <div class="syntax-color-option">
                 <label>Mots-clés (if, for, while...)</label>
@@ -887,8 +898,13 @@ const sidebar = document.querySelector('.sidebar');
 
 toggleSidebarBtn.addEventListener('click', () => {
     const isCollapsed = sidebar.classList.toggle('collapsed');
-    toggleSidebarBtn.querySelector('i').className = isCollapsed ?
-        'fas fa-chevron-right' : 'fas fa-chevron-left';
+    if (isCollapsed) {
+        toggleSidebarBtn.querySelector('i').classList.remove('fas fa-chevron-left');
+        toggleSidebarBtn.querySelector('i').classList.add('fas fa-chevron-right');
+    } else {
+        toggleSidebarBtn.querySelector('i').classList.remove('fas fa-chevron-right');
+        toggleSidebarBtn.querySelector('i').classList.add('fas fa-chevron-left');
+    }
 });
 
 // Ajouter cette fonction pour créer la boîte de suggestions
@@ -1230,7 +1246,7 @@ function createAIChatWindow() {
         </div>
         <div class="chat-messages"></div>
         <div class="chat-input">
-            <textarea id='ia-input' placeholder="En qui puis-je t'aider ?"></textarea>
+            <textarea id='ia-input' placeholder="En quoi puis-je t'aider ?"></textarea>
             <button onclick="sendToIa()" class="send-message"><i class="fas fa-paper-plane"></i></button>
         </div>
     `;
@@ -1415,7 +1431,9 @@ resetButton.addEventListener('click', () => {
     chatMessages.innerHTML = '';
 });
 
-if (window.innerWidth <= 920) {
+
+//disabel the site on phone
+if (window.innerWidth <= 900) {
     //display a message
     alert('Le site est actuellement indisponible pour cette taille d\'écran');
     // disable the site
@@ -1450,4 +1468,37 @@ if (window.innerWidth <= 920) {
     messageDiv2.textContent = 'Le site est actuellement indisponible pour cette taille d\'écran';
     document.body.appendChild(messageDiv);
     messageDiv.appendChild(messageDiv2)
+}
+
+function handleFileUpload(event) {
+    var codefile
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            codefile = e.target.result;
+            // get the filename
+            const fileName = file.name;
+            // check if the filename is too long to display
+            if (fileName.length > 16) {
+                alert("Le nom du fichier ne doit pas dépasser 16 caractères le nom vas etre coupé");
+                //cut the name at 16 chart
+                fileName = fileName.substr(0, 16);
+                return;
+            }
+            // add a new file
+            const newFile = {
+                id: Date.now(),
+                name: fileName,
+                content: codefile
+            };
+
+            files.push(newFile);
+            currentFile = newFile;
+            updateFileExplorer();
+            codeEditor.value = codefile;
+            updateCodeHighlighting();
+        };
+        reader.readAsText(file);
+    }
 }

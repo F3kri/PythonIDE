@@ -4,11 +4,11 @@
     --secondary-color: #22c55e;
     --error-color: #ef4444;
     --warning-color: #f59e0b;
-    --bg-color: #ffffff;
+    --bg-color: #ced3d9;
     --text-color: #1f2937;
-    --sidebar-bg: #f8fafc;
-    --editor-bg: #ffffff;
-    --console-bg: #f8fafc;
+    --sidebar-bg: #d9dada;
+    --editor-bg: #d7d9df;
+    --console-bg: #d8dee3;
     --border-radius: 1em;
     --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
     --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -174,6 +174,53 @@ body {
 .sidebar button:active {
     transform: scale(0.95);
 }
+input[type="file"] {
+    display: none;
+}
+
+.sidebar .custom-file-upload {
+    width: 100%;
+    padding: 0.875rem;
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar .custom-file-upload::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.sidebar .custom-file-upload:hover::after {
+    left: 100%;
+}
+
+.sidebar .custom-file-upload:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    animation: glow 2s infinite;
+}
+
+.sidebar .custom-file-upload:active {
+    transform: scale(0.95);
+}
 
 .main-content {
     flex: 1;
@@ -203,7 +250,7 @@ body {
 
 .toolbar button {
     padding: 0.75rem;
-    width: 42px;
+    width: auto;
     background: var(--gradient-primary);
     color: white;
     border: none;
@@ -220,24 +267,13 @@ body {
 }
 
 .toolbar button span {
-    position: absolute;
-    left: 42px;
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translateX(-10px);
-}
-
-.toolbar button:hover {
-    width: 140px;
-    padding-right: 1.5rem;
-}
-
-.toolbar button:hover span {
     position: static;
-    opacity: 1;
     transform: translateX(0);
     margin-left: 0.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+
 
 .toolbar select {
     appearance: none;
@@ -276,7 +312,7 @@ body {
 
 .toolbar button:hover,
 .toolbar select:hover {
-    transform: translateY(-2px);
+    transform: translateY(-5px);
     box-shadow: var(--neon-glow);
 }
 
@@ -316,7 +352,7 @@ body {
     color: var(--text-color);
     line-height: 1.615;
     text-align: right;
-    padding-bottom: 200px;
+    padding-bottom: 50px;
 }
 
 .line-numbers-container span {
@@ -453,7 +489,6 @@ body {
     padding: 12px;
     margin: 10px 0;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    
     border: rgba(0, 0, 0, 0.594) solid ;
 }
 .language-python{
@@ -864,10 +899,8 @@ body {
 }
 
 .modal-content {
-    background: var(--bg-color);
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-self: center;
     width: 300px;
 }
 
@@ -912,22 +945,26 @@ body {
 
 #fileExplorer {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: calc(100vh - 200px);
-    padding-right: 0.5rem;
+    position: relative;
+    top: 20px;
+    overflow-y: visible;
+    max-height: calc(100vh - 180px);
+    width: 100%;
 }
 
 .file-item {
     padding: 0.4rem 0;
     margin-bottom: 0.2rem;
+    width: 100%;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     transition: all 0.2s ease;
     position: relative;
-    border-radius: 4px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border: rgba(99, 102, 241, 0.15) solid;
 }
 
 .file-item:hover {
@@ -1267,9 +1304,6 @@ body {
     gap: 0.5rem;
 }
 
-.file-item {
-    position: relative;
-}
 
 .file-actions {
     position: absolute;
@@ -1306,6 +1340,9 @@ body {
 
 #themeToggle {
     position: relative;
+}
+svg{
+    width: 17px;
 }
 
 #themeToggle i {
@@ -1522,7 +1559,7 @@ body {
 .modal-actions {
     display: flex;
     gap: 1rem;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .modal-button {
@@ -1622,14 +1659,12 @@ body {
     border-radius: var(--border-radius);
 }
 
-.file-item {
-    transition: padding-left 0.3s ease;
-}
-
 .file-item:hover {
     background: rgba(99, 102, 241, 0.1);
-    transform: translateX(8px) scale(1.02);
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    transform: translateX(10px);
+    width: calc(100% - 10px);
+    box-shadow: 0px 0px 25px var(--primary-color);
+    transition: all 0.3s ease;
 }
 
 .toolbar-toggle,
@@ -1689,9 +1724,72 @@ body {
     transform: rotate(180deg);
 }
 
-.chat-message-container {
-    border: rgba(0, 0, 0, 0.594) solid ;
-} 
-.chat-message {
-    margin-top: -45px !important;
-} 
+@media (max-width: 1280px) {
+    .toolbar{
+        flex: 0.25;
+    }
+    .toolbar-actions{
+        position: absolute;
+        bottom: 15%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .current-file{
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+@media (max-width: 1100px) {
+    .toolbar{
+       flex: 0.4;
+    }
+    .toolbar-actions{
+        display: grid;
+        grid-template-columns: repeat(3, 150px);
+        bottom: 10px;
+    }
+    .current-file{
+        top: 10px;
+    }
+}
+/* (max-width: 1100px)  (max-height: 775px)*/
+@media (max-width: 1100px) and (max-height: 775px) {
+    .toolbar{
+        flex: 0.5;
+    }
+}
+@media (max-width: 1100px) and (max-height: 700px) {
+    .toolbar{
+        flex: 0.6;
+    }
+}
+@media (max-width: 1100px) and (max-height: 675px) {
+    .toolbar{
+        flex: 0.7;
+    }
+}
+@media (max-width: 1100px) and (max-height: 650px) {
+    .toolbar{
+        flex: 0.8;
+    }
+}
+@media (max-width: 1100px) and (max-height: 625px) {
+    .toolbar{
+        flex: 0.9;
+    }
+}
+@media (max-width: 1100px) and (max-height: 600px) {
+    .toolbar{
+        flex: 1;
+    }
+}
+.p{
+    position: fixed;
+    bottom: 0;
+    right: 5px;
+    font-size: 10px;
+    color: #0056b3;
+}
