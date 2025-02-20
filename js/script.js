@@ -1115,11 +1115,19 @@ async function sendToIa() {
 
     // Créer un nouveau message avec la date et l'heure
     var code = codeEditor.value;
-    var console = consoleContainer.innerText;
+    var console = consoleContainer.innerHTML;
 
-    var prompt = "Tu est un assistan de code Python pour mon IDE tu vas aidez et répondre a la question de mon client voici son code :" + code + ' . Voici sa demande :' + message + ' . Répond lui juste a sa question et pour t\'aider dans le contexte voici les anciens messages il peut ne pas y en avoir :' + chatMessages + ' et la conole si tu en a besoin :' + console + 'PS : mon IDE n\'affiche pas les interface seulement une conole'
+    var prompt = `Tu es un assistant de code Python pour mon IDE. Ton rôle est d’aider l’utilisateur en répondant précisément à sa demande. Pour cela, tu disposes des éléments suivants :
 
-
+    - **Code fourni** : ${code}
+    - **Demande de l’utilisateur** : ${message}
+    - **Historique des échanges** (s’il y en a) : ${chatMessages}
+    - **Console en HTML** (à utiliser si nécessaire) : ${console}
+    
+    Réponds uniquement à la question posée en te basant sur ces éléments. 
+    
+    PS : Mon IDE n’affiche pas d’interfaces graphiques, uniquement une console, et les modules/bibliothèques installables via pip ne sont pas pris en charge. Ne sors surtout pas du contexte d’un assistant de code Python.`
+    
     //attend la réponse de AIgenerate(prompt) pour faire la suite
     AIgenerate(prompt);
     //affiche génération en cour et block le bouton
