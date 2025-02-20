@@ -1194,7 +1194,7 @@ function afficheResult(result) {
 
 
 async function AIgenerate(info) {
-    const apiKey = "AIzaSyBHs9ZVWK9JahTxXVU3W2qpCkSLnQRiT9Y"; // Remplacez par votre clé API Gemini
+    const apiKey = "AIzaSyBAPVvtSFc5yBlNxPRKMO8TWNyesginF7A"; // Remplacez par votre clé API Gemini
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const requestBody = {
