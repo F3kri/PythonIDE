@@ -92,6 +92,7 @@ body {
 
 .sidebar.collapsed .sidebar-header h3,
 .sidebar.collapsed #newFile,
+.sidebar.collapsed #impFile,
 .sidebar.collapsed #fileExplorer {
     display: none;
 }

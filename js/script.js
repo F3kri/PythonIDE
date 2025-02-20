@@ -1478,13 +1478,20 @@ function handleFileUpload(event) {
         reader.onload = function (e) {
             codefile = e.target.result;
             // get the filename
-            const fileName = file.name;
+            var fileName = file.name;
             // check if the filename is too long to display
             if (fileName.length > 16) {
-                alert("Le nom du fichier ne doit pas dépasser 16 caractères le nom vas etre coupé");
-                //cut the name at 16 chart
-                fileName = fileName.substr(0, 16);
-                return;
+                alert("Le nom du fichier ne doit pas dépasser 16 caractères. Le renommer :");
+                // popup for the new name
+                const newName = prompt("Nouveau nom de fichier :");
+                if (!newName) {
+                    return;
+                }
+                if (newName.length > 16) {
+                    alert("Le nouveau nom de fichier ne doit pas dépasser 16 caractères.");
+                    return;
+                }
+                fileName = `${newName}.py`;
             }
             // add a new file
             const newFile = {
