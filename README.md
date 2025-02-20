@@ -5,6 +5,7 @@ L'Editeur de Code en Ligne est une application web permettant aux utilisateurs d
 
 ## Fonctionnalités ✨
 - **Exécution instantanée :** Exécutez votre code Python en temps réel sans besoin d'installation, directement depuis votre navigateur.
+- **Assistant IA :** Une Intelligence Artificielle accéssible directement dans l'IDE
 - **Interface simple et intuitive :** Conçu pour les développeurs débutants comme avancés, avec une interface claire et sans distraction.
 
 ## Installation 🛠️
