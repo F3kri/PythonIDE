@@ -2,11 +2,15 @@ let pyodide = null;
 let isWaitingForInput = false;
 let currentFile = {
     id: Date.now(),
-    name: 'undefined.py',
+    name: 'Untitled.py',
     content: 'print("Hello World !")'
 };
 let files = [];
-files.push(currentFile);
+loadFilesFromLocalStorage();
+if (!files || files.length === 0) {
+    files.push(currentFile);
+    currentFile = files[0];
+}
 
 let currentLanguage = 'python';
 
@@ -111,36 +115,40 @@ window.addEventListener('load', () => {
         loadingScreen.style.visibility = 'hidden';
         initPyodide();
 
-        const codeEditor = document.getElementById('codeEditor');
-
-        const lineNumbersContainer = document.createElement('div');
-        lineNumbersContainer.className = 'line-numbers-container';
-
-        codeEditor.parentNode.insertBefore(lineNumbersContainer, codeEditor.nextSibling);
-
-        function updateLineNumbers() {
-            const lines = codeEditor.value.split('\n');
-            let lineNumbersHTML = '';
-
-            lines.forEach((_, index) => {
-                lineNumbersHTML += `<span>${index + 1}</span>`;
-            });
-
-            lineNumbersContainer.innerHTML = lineNumbersHTML;
-        }
-
-        updateLineNumbers();
-
-        codeEditor.addEventListener('input', updateLineNumbers);
+        const lineNumbersContainer = document.getElementById('line-numbers');
 
         codeEditor.addEventListener('scroll', () => {
             lineNumbersContainer.scrollTop = codeEditor.scrollTop;
         });
 
+        codeEditor.addEventListener('input', updateLineCunter);
+
         // Initialiser les numéros de ligne
-        updateLineNumbers();
+        updateLineCunter();
     }, 2400);
 });
+
+function updateLineCunter(){
+    const codeEditor = document.getElementById('codeEditor');
+
+    const lineNumbersContainer = document.getElementById('line-numbers');
+
+    // Remove all span inside lineNumbersContainer
+    lineNumbersContainer.innerHTML = '';
+    
+    function updateLineNumbers() {
+        const lines = codeEditor.value.split('\n');
+        let lineNumbersHTML = '';
+
+        lines.forEach((_, index) => {
+            lineNumbersHTML += `<span>${index + 1}</span>`;
+        });
+
+        lineNumbersContainer.innerHTML = lineNumbersHTML;
+    }
+
+    updateLineNumbers();
+}
 
 const codeEditor = document.getElementById('codeEditor');
 const runButton = document.getElementById('run');
@@ -229,6 +237,16 @@ runButton.addEventListener('click', async () => {
         return;
     }
 
+    loadFilesFromLocalStorage();
+
+    // Si aucun fichier n'est présent, initialisez avec le fichier par défaut
+    if (!files || files.length === 0) {
+        files.push(currentFile);
+        currentFile = files[0];
+    }
+
+    updateFileExplorer();
+
     let code = codeEditor.value;
 
     // Remplacer tous les int(input(...)) par int_input(...)
@@ -302,13 +320,27 @@ function createNewFile() {
         updateFileExplorer();
         codeEditor.value = newFile.content;
         updateCodeHighlighting();
+        updateLineCunter()
     });
+}
+function loadFilesFromLocalStorage() {
+    const storedFiles = localStorage.getItem('files');
+    if (storedFiles) {
+        files = JSON.parse(storedFiles);
+        if (files.length > 0) {
+            currentFile = files[0];
+        }
+    }
+}
+
+function saveFilesToLocalStorage() {
+    localStorage.setItem('files', JSON.stringify(files));
 }
 
 function updateFileExplorer() {
     const fragment = document.createDocumentFragment();
-
     document.getElementById('currentFileName').textContent = currentFile.name;
+
     // Créer une structure arborescente
     const treeStructure = {};
     files.forEach(file => {
@@ -331,8 +363,6 @@ function updateFileExplorer() {
     // Fonction récursive pour créer l'interface
     function createTreeElement(structure, level = 0) {
         const items = [];
-
-        // Trier : dossiers d'abord, puis fichiers
         const sorted = Object.entries(structure).sort(([, a], [, b]) => {
             if (a.type === b.type) return 0;
             return a.type === 'folder' ? -1 : 1;
@@ -345,23 +375,21 @@ function updateFileExplorer() {
             if (item.type === 'folder') {
                 element.style.paddingLeft = `${level * 1.2 + 0.75}rem`;
                 element.innerHTML = `
-                    <div class="folder-header">
-                        <i class="fas ${item.isOpen ? 'fa-chevron-down' : 'fa-chevron-right'} folder-arrow"></i>
-                        <i class="fas fa-folder${item.isOpen ? '-open' : ''} folder-icon"></i>
-                        <span>${name}</span>
-                    </div>
-                `;
+          <div class="folder-header">
+            <i class="fas ${item.isOpen ? 'fa-chevron-down' : 'fa-chevron-right'} folder-arrow"></i>
+            <i class="fas fa-folder${item.isOpen ? '-open' : ''} folder-icon"></i>
+            <span>${name}</span>
+          </div>
+        `;
 
                 const folderContent = document.createElement('div');
                 folderContent.className = 'folder-content';
                 folderContent.style.display = item.isOpen ? 'block' : 'none';
 
-                // Récursion pour le contenu du dossier
                 const children = createTreeElement(item.content, level + 1);
                 children.forEach(child => folderContent.appendChild(child));
                 element.appendChild(folderContent);
 
-                // Gestionnaire de clic pour ouvrir/fermer le dossier
                 element.querySelector('.folder-header').addEventListener('click', () => {
                     item.isOpen = !item.isOpen;
                     element.querySelector('.folder-arrow').className =
@@ -373,7 +401,7 @@ function updateFileExplorer() {
             } else {
                 element.style.paddingLeft = `${(level + 1) * 1.2 + 0.75}rem`;
                 element.innerHTML = `
-                    <div class="file-content">
+          <div class="file-content">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="16 16 32 32"><path fill="url(#a)" d="M31.885 16c-8.124 0-7.617 3.523-7.617 3.523l.01 3.65h7.752v1.095H21.197S16 23.678 16 31.876c0 8.196 4.537 7.906 4.537 7.906h2.708v-3.804s-.146-4.537 4.465-4.537h7.688s4.32.07 4.32-4.175v-7.019S40.374 16 31.885 16zm-4.275 2.454a1.394 1.394 0 1 1 0 2.79 1.393 1.393 0 0 1-1.395-1.395c0-.771.624-1.395 1.395-1.395z"/><path fill="url(#b)" d="M32.115 47.833c8.124 0 7.617-3.523 7.617-3.523l-.01-3.65H31.97v-1.095h10.832S48 40.155 48 31.958c0-8.197-4.537-7.906-4.537-7.906h-2.708v3.803s.146 4.537-4.465 4.537h-7.688s-4.32-.07-4.32 4.175v7.019s-.656 4.247 7.833 4.247zm4.275-2.454a1.393 1.393 0 0 1-1.395-1.395 1.394 1.394 0 1 1 1.395 1.395z"/><defs><linearGradient id="a" x1="19.075" x2="34.898" y1="18.782" y2="34.658" gradientUnits="userSpaceOnUse"><stop stop-color="#387EB8"/><stop offset="1" stop-color="#366994"/></linearGradient><linearGradient id="b" x1="28.809" x2="45.803" y1="28.882" y2="45.163" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE052"/><stop offset="1" stop-color="#FFC331"/></linearGradient></defs></svg>
                         <span>${name}</span>
                         <div class="file-actions">
@@ -381,9 +409,9 @@ function updateFileExplorer() {
                             <button class="delete-file"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
-                `;
+        `;
 
-                // Ajouter les gestionnaires d'événements pour les boutons
+                // Gestionnaire pour renommer
                 element.querySelector('.rename-file').addEventListener('click', (e) => {
                     e.stopPropagation();
                     createModal('Renommer le fichier', item.data.name).then(newName => {
@@ -402,10 +430,9 @@ function updateFileExplorer() {
                     });
                 });
 
+                // Gestionnaire pour supprimer
                 element.querySelector('.delete-file').addEventListener('click', (e) => {
                     e.stopPropagation();
-
-                    // Vérifier si c'est le dernier fichier
                     if (files.length <= 1) {
                         createModal('Action impossible', 'Impossible de supprimer le dernier fichier.', null, 'alert');
                         return;
@@ -447,7 +474,11 @@ function updateFileExplorer() {
     const fileExplorer = document.getElementById('fileExplorer');
     fileExplorer.innerHTML = '';
     fileExplorer.appendChild(fragment);
+    // Sauvegarder l'état actuel des fichiers dans le localStorage
+    saveFilesToLocalStorage();
 }
+
+
 
 function switchFile(file) {
     if (currentFile) {
@@ -681,36 +712,40 @@ function updateCodeHighlighting() {
     // Obtenir le code
     const code = codeEditor.value;
 
-    // Créer un élément pre temporaire pour la coloration
+    // Créer un élément <pre> temporaire pour la coloration
     const preElement = document.createElement('pre');
     preElement.className = currentLanguage === 'python' ? 'language-python' : 'language-javascript';
 
-    // Créer un élément code pour le contenu
+    // Créer un élément <code> pour le contenu
     const codeElement = document.createElement('code');
     codeElement.className = currentLanguage === 'python' ? 'language-python' : 'language-javascript';
     codeElement.textContent = code;
 
     preElement.appendChild(codeElement);
 
-    // Appliquer la coloration syntaxique
+    // Appliquer la coloration syntaxique avec Prism
     Prism.highlightElement(codeElement);
 
-    // Mettre à jour le contenu de l'éditeur
-    const highlightedContent = codeElement.innerHTML;
+    // Récupérer le contenu mis en surbrillance
+    let highlightedContent = codeElement.innerHTML;
+    // Si le code se termine par un saut de ligne, ajouter un <br>
+    if (code.endsWith('\n')) {
+        highlightedContent += '<br>';
+    }
 
-    // Créer un div pour contenir le texte coloré
-    const highlightLayer = document.createElement('div');
-    highlightLayer.className = 'highlight-layer';
-    highlightLayer.innerHTML = highlightedContent;
-
-    // Mettre à jour la couche de coloration
+    // Mettre à jour la couche de surlignage
     const existingLayer = document.querySelector('.highlight-layer');
     if (existingLayer) {
         existingLayer.innerHTML = highlightedContent;
     } else {
+        const highlightLayer = document.createElement('div');
+        highlightLayer.className = 'highlight-layer';
+        highlightLayer.innerHTML = highlightedContent;
         document.querySelector('.editor-container').appendChild(highlightLayer);
     }
+    updateLineCunter()
 }
+
 
 // Modifier l'événement input de l'éditeur
 codeEditor.addEventListener('input', () => {
@@ -1127,7 +1162,7 @@ async function sendToIa() {
     Réponds uniquement à la question posée en te basant sur ces éléments. 
     
     PS : Mon IDE n’affiche pas d’interfaces graphiques, uniquement une console, et les modules/bibliothèques installables via pip ne sont pas pris en charge. Ne sors surtout pas du contexte d’un assistant de code Python.`
-    
+
     //attend la réponse de AIgenerate(prompt) pour faire la suite
     AIgenerate(prompt);
     //affiche génération en cour et block le bouton
@@ -1194,14 +1229,14 @@ function afficheResult(result) {
 
 
 async function AIgenerate(info) {
-    const apiKey = "AIzaSyBAPVvtSFc5yBlNxPRKMO8TWNyesginF7A"; // Remplacez par votre clé API Gemini
+    const apiKey = "AIzaSyBHs9ZVWK9JahTxXVU3W2qpCkSLnQRiT9Y"; // svp l'utilisez pas g grave la flm de faire un serveur pour jsute l'ia
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const requestBody = {
         contents: [
             {
                 parts: [
-                    { text: info } // Votre question ou prompt
+                    { text: info }
                 ]
             }
         ]
@@ -1221,8 +1256,6 @@ async function AIgenerate(info) {
         }
 
         const data = await response.json();
-        // Afficher la réponse dans l'élément HTML
-        //formate la réponce en html comme avec * * en gras # pour en h1 ...
         afficheResult(data);
 
     } catch (error) {

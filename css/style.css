@@ -356,7 +356,7 @@ input[type="file"] {
     color: var(--text-color);
     line-height: 1.615;
     text-align: right;
-    padding-bottom: 50px;
+    padding-bottom: 300px;
 }
 
 .line-numbers-container span {
@@ -583,6 +583,7 @@ input[type="file"] {
     right: 0;
     bottom: 0;
     padding: 1.25rem;
+    padding-bottom: calc(1.25rem + 100px);
     font-family: inherit;
     font-size: 0.95rem;
     line-height: 1.7;

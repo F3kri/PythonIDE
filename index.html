@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="icon" type="image/png" href="asset/Frame_1_9.png">
 </head>
 
 <body>
@@ -65,7 +66,7 @@
                             </linearGradient>
                         </defs>
                     </svg>
-                    <span id="currentFileName">undefined.py</span>
+                    <span id="currentFileName">Untitled.py</span>
                 </div>
                 <div class="toolbar-actions">
                     <button id="run"><i class="fas fa-play"></i><span>Exécuter</span></button>
@@ -79,6 +80,7 @@
             <div class="editor-container">
                 <div class="line-gutter"></div>
                 <textarea id="codeEditor" spellcheck="false"></textarea>
+                <div class="line-numbers-container" id="line-numbers"></div>
             </div>
             <div class="console">
                 <div class="console-header">
@@ -93,7 +95,7 @@
             </div>
         </div>
     </div>
-    <div class="p">V2.6</div>
+    <div class="p">V3</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pyodide/0.21.3/pyodide.js"></script>
