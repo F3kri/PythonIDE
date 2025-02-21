@@ -1229,7 +1229,7 @@ function afficheResult(result) {
 
 
 async function AIgenerate(info) {
-    const apiKey = "AIzaSyBHs9ZVWK9JahTxXVU3W2qpCkSLnQRiT9Y"; // svp l'utilisez pas g grave la flm de faire un serveur pour jsute l'ia
+    const apiKey = "AIzaSyBAPVvtSFc5yBlNxPRKMO8TWNyesginF7A"; // svp l'utilisez pas g grave la flm de faire un serveur pour jsute l'ia
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const requestBody = {
