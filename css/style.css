@@ -92,6 +92,7 @@ body {
 
 .sidebar.collapsed .sidebar-header h3,
 .sidebar.collapsed #newCont,
+.sidebar.collapsed #jtcButton,
 .sidebar.collapsed #impFile,
 .sidebar.collapsed #fileExplorer {
     display: none !important;
@@ -1012,8 +1013,16 @@ input[type="file"] {
     top: 20px;
     overflow: scroll;
     overflow-y: scroll;
-    max-height: calc(100vh - 340px);
+    max-height: calc(100vh - 310px);
+    margin-top: -30px;
     width: 100%;
+    padding-top: 30px;
+    padding-right: 30px;
+    padding-left: 20px;
+}
+
+#fileExplorer::-webkit-scrollbar {
+    display: none;
 }
 
 .file-item {

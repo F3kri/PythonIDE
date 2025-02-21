@@ -290,6 +290,7 @@ clearConsoleButton.addEventListener('click', () => {
 clearButton.addEventListener('click', () => {
     codeEditor.value = '';
     updateCodeHighlighting();
+    updateLineCunter()
 });
 
 maxConsaleButton.addEventListener('click', () => {
