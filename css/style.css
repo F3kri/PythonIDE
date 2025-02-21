@@ -1015,7 +1015,8 @@ input[type="file"] {
     overflow-y: scroll;
     max-height: calc(100vh - 310px);
     margin-top: -30px;
-    width: 100%;
+    margin-left: -20px;
+    width: calc(100% + 50px);
     padding-top: 30px;
     padding-right: 30px;
     padding-left: 20px;
