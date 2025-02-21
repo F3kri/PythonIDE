@@ -128,14 +128,14 @@ window.addEventListener('load', () => {
     }, 2400);
 });
 
-function updateLineCunter(){
+function updateLineCunter() {
     const codeEditor = document.getElementById('codeEditor');
 
     const lineNumbersContainer = document.getElementById('line-numbers');
 
     // Remove all span inside lineNumbersContainer
     lineNumbersContainer.innerHTML = '';
-    
+
     function updateLineNumbers() {
         const lines = codeEditor.value.split('\n');
         let lineNumbersHTML = '';
@@ -489,6 +489,7 @@ function switchFile(file) {
     setLanguage(file.name.endsWith('.js') ? '.js' : '.py');
     updateCodeHighlighting();
     updateFileExplorer();
+    updateLineCunter()
 }
 
 function createModal(title, content, onConfirm, type = 'input') {
@@ -743,7 +744,6 @@ function updateCodeHighlighting() {
         highlightLayer.innerHTML = highlightedContent;
         document.querySelector('.editor-container').appendChild(highlightLayer);
     }
-    updateLineCunter()
 }
 
 
@@ -762,6 +762,7 @@ function switchFile(file) {
     setLanguage(file.name.endsWith('.js') ? '.js' : '.py');
     updateCodeHighlighting();
     updateFileExplorer();
+    updateLineCunter()
 }
 
 codeEditor.value = currentFile.content;  // Initialiser le contenu de l'éditeur
@@ -1139,36 +1140,47 @@ function updateActiveItem(items, activeIndex) {
     items[activeIndex].classList.add('active');
     items[activeIndex].scrollIntoView({ block: 'nearest' });
 }
-
-// recover when #ia-send is clicked,
 async function sendToIa() {
     const message = document.getElementById('ia-input').value;
-    const chatMessages = document.querySelector('.chat-messages');
-    const codeEditor = document.getElementById('codeEditor')
-    const consoleContainer = document.getElementById('consoleOutput')
+    const codeEditor = document.getElementById('codeEditor');
+    const consoleContainer = document.getElementById('consoleOutput');
 
-
-    // Créer un nouveau message avec la date et l'heure
-    var code = codeEditor.value;
-    var console = consoleContainer.innerHTML;
-
-    var prompt = `Tu es un assistant de code Python pour mon IDE. Ton rôle est d’aider l’utilisateur en répondant précisément à sa demande. Pour cela, tu disposes des éléments suivants :
-
-    - **Code fourni** : ${code}
-    - **Demande de l’utilisateur** : ${message}
-    - **Historique des échanges** (s’il y en a) : ${chatMessages}
-    - **Console en HTML** (à utiliser si nécessaire) : ${console}
-    
-    Réponds uniquement à la question posée en te basant sur ces éléments. 
-    
-    PS : Mon IDE n’affiche pas d’interfaces graphiques, uniquement une console, et les modules/bibliothèques installables via pip ne sont pas pris en charge. Ne sors surtout pas du contexte d’un assistant de code Python.`
-
-    //attend la réponse de AIgenerate(prompt) pour faire la suite
-    AIgenerate(prompt);
-    //affiche génération en cour et block le bouton
     document.getElementById('loding').style.display = 'flex';
+    //add the message in the convertion
+    const chatMessages = document.querySelector('.chat-messages');
+    chatMessages.innerHTML += `<div class="chat-message-user">${message}</div>`;
 
-};
+    const code = codeEditor ? codeEditor.value : "aucun code dans l'IDE";  // Vérifie si l'élément existe
+    const consoleHTML = consoleContainer ? consoleContainer.innerHTML : "";
+
+    const payload = {
+        code: code.trim(),
+        message: message.trim(),
+        chatMessages: "",
+        console: consoleHTML.trim()
+    };
+
+    console.log("Payload envoyé :", payload); // Vérifiez ce qui est envoyé
+    var data
+    try {
+        const response = await fetch("https://lee-valuable-italiano-financing.trycloudflare.com/api/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error(`Erreur: ${response.status}`);
+
+        data = await response.json();
+
+        console.log("Réponse reçue :", data);
+
+    } finally {
+        afficheResult(data);
+        console.log("Requête terminée.");
+    }
+}
+
 
 // Assurez-vous d'inclure Marked.js et Prism.js dans votre projet
 
@@ -1177,7 +1189,7 @@ function afficheResult(result) {
     document.getElementById('loding').style.display = 'none';
 
     // Extraire le texte de la réponse
-    const responseText = result.candidates[0].content.parts[0].text;
+    const responseText = result.response.parts[0].text;;
 
     // Sélectionner l'élément qui contient les messages
     const chatMessages = document.querySelector('.chat-messages');
@@ -1224,43 +1236,6 @@ function afficheResult(result) {
     // Appliquer la mise en surbrillance du code si Prism.js est utilisé
     if (window.Prism) {
         Prism.highlightAll();
-    }
-}
-
-
-async function AIgenerate(info) {
-    const apiKey = "AIzaSyBAPVvtSFc5yBlNxPRKMO8TWNyesginF7A"; // svp l'utilisez pas g grave la flm de faire un serveur pour jsute l'ia
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-    const requestBody = {
-        contents: [
-            {
-                parts: [
-                    { text: info }
-                ]
-            }
-        ]
-    };
-
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(requestBody)
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        afficheResult(data);
-
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        afficheResult(null);
     }
 }
 

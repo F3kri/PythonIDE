@@ -91,10 +91,10 @@ body {
 }
 
 .sidebar.collapsed .sidebar-header h3,
-.sidebar.collapsed #newFile,
+.sidebar.collapsed #newCont,
 .sidebar.collapsed #impFile,
 .sidebar.collapsed #fileExplorer {
-    display: none;
+    display: none !important;
 }
 
 .sidebar.collapsed #toggleSidebar {
@@ -175,6 +175,7 @@ body {
 .sidebar button:active {
     transform: scale(0.95);
 }
+
 input[type="file"] {
     display: none;
 }
@@ -234,7 +235,7 @@ input[type="file"] {
     gap: 1.5rem;
     background-color: var(--bg-color);
     border-radius: var(--border-radius);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .toolbar {
@@ -316,7 +317,7 @@ input[type="file"] {
 
 .toolbar button:hover,
 .toolbar select:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
     box-shadow: var(--neon-glow);
 }
 
@@ -341,10 +342,11 @@ input[type="file"] {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     border: var(--glass-border);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     position: relative;
-    transition: flex 0.3s ease;
+    transition: all 0.3s ease;
 }
+
 .line-numbers-container {
     position: absolute;
     top: 0;
@@ -370,6 +372,7 @@ input[type="file"] {
 .main-content.collapsedm .console {
     flex: 1;
 }
+
 /* CSS de la fenêtre */
 .ai-chat-window {
     position: fixed;
@@ -422,9 +425,9 @@ input[type="file"] {
     border: 2px solid #444;
     box-shadow: -10px -10px 10px #6359f8, 0px -10px 10px 0px #9c32e2, 10px -10px 10px #f36896, 10px 0 10px #ff0b0b, 10px 10px 10px 0px#ff5500, 0 10px 10px 0px #ff9500, -10px 10px 10px 0px #ffb700;
     animation: rot55 0.7s linear infinite;
-  }
-  
-  .spinnerin {
+}
+
+.spinnerin {
     border: 2px solid #444;
     width: 1.5em;
     height: 1.5em;
@@ -433,14 +436,15 @@ input[type="file"] {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-  }
-  
-  @keyframes rot55 {
+}
+
+@keyframes rot55 {
     to {
-      transform: rotate(360deg);
+        transform: rotate(360deg);
     }
-  }
-#loding{
+}
+
+#loding {
     display: none;
     width: 100%;
     height: 100%;
@@ -451,7 +455,8 @@ input[type="file"] {
     background-color: #0000007e;
     justify-content: center;
     align-items: center;
-}  
+}
+
 .chat-input {
     padding: 1rem;
     display: flex;
@@ -488,18 +493,22 @@ input[type="file"] {
     transform: scale(1.1);
     color: var(--primary-color);
 }
+
 .chat-message-container {
     border-radius: 8px;
     padding: 12px;
     margin: 10px 0;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    border: rgba(0, 0, 0, 0.594) solid ;
+    border: #6365f16c solid;
+    background-color: var(--bg-color)
 }
-.language-python{
+
+.language-python {
     background-color: #0f172a !important;
     text-shadow: none !important;
     overflow: auto !important;
 }
+
 .chat-message {
     font-size: 14px;
     line-height: 1.6;
@@ -557,6 +566,32 @@ input[type="file"] {
 .send-message:hover i {
     transform: translateX(2px);
 }
+
+.new-cont {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+#newFolder {
+    pointer-events: none;
+}
+
+#newFolder::before {
+    height: 100%;
+    width: 100%;
+    content: 'Coming Soon';
+    background: #000000c4;
+    position: absolute;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 #codeEditor {
     flex: 1;
     padding: 1.25rem;
@@ -661,14 +696,37 @@ input[type="file"] {
     color: #ec4899;
 }
 
-[data-theme="light"] .token.comment { color: #6b7280; }
-[data-theme="light"] .token.punctuation { color: inherit; }
-[data-theme="light"] .token.property { color: #dc2626; }
-[data-theme="light"] .token.string { color: #059669; }
-[data-theme="light"] .token.operator { color: inherit; }
-[data-theme="light"] .token.keyword { color: #2563eb; }
-[data-theme="light"] .token.function { color: #d97706; }
-[data-theme="light"] .token.variable { color: #db2777; }
+[data-theme="light"] .token.comment {
+    color: #6b7280;
+}
+
+[data-theme="light"] .token.punctuation {
+    color: inherit;
+}
+
+[data-theme="light"] .token.property {
+    color: #dc2626;
+}
+
+[data-theme="light"] .token.string {
+    color: #059669;
+}
+
+[data-theme="light"] .token.operator {
+    color: inherit;
+}
+
+[data-theme="light"] .token.keyword {
+    color: #2563eb;
+}
+
+[data-theme="light"] .token.function {
+    color: #d97706;
+}
+
+[data-theme="light"] .token.variable {
+    color: #db2777;
+}
 
 .console {
     height: 200px;
@@ -952,8 +1010,9 @@ input[type="file"] {
     flex: 1;
     position: relative;
     top: 20px;
-    overflow-y: visible;
-    max-height: calc(100vh - 180px);
+    overflow: scroll;
+    overflow-y: scroll;
+    max-height: calc(100vh - 340px);
     width: 100%;
 }
 
@@ -1346,7 +1405,8 @@ body {
 #themeToggle {
     position: relative;
 }
-svg{
+
+svg {
     width: 17px;
 }
 
@@ -1374,11 +1434,10 @@ svg{
     align-items: center;
     z-index: 9999;
     transition: all 0.5s ease;
-    background: linear-gradient(135deg, 
-        var(--bg-color), 
-        rgba(99, 102, 241, 0.1),
-        var(--bg-color)
-    );
+    background: linear-gradient(135deg,
+            var(--bg-color),
+            rgba(99, 102, 241, 0.1),
+            var(--bg-color));
 }
 
 .loader {
@@ -1399,12 +1458,10 @@ svg{
     left: -100%;
     width: 200%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(99, 102, 241, 0.2),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(99, 102, 241, 0.2),
+            transparent);
     animation: shimmer 2s infinite;
 }
 
@@ -1479,24 +1536,49 @@ svg{
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
 @keyframes shimmer {
-    100% { left: 100%; }
+    100% {
+        left: 100%;
+    }
 }
 
 @keyframes typing {
-    0% { content: 'Initialisation'; }
-    33% { content: 'Initialisation.'; }
-    66% { content: 'Initialisation..'; }
-    100% { content: 'Initialisation...'; }
+    0% {
+        content: 'Initialisation';
+    }
+
+    33% {
+        content: 'Initialisation.';
+    }
+
+    66% {
+        content: 'Initialisation..';
+    }
+
+    100% {
+        content: 'Initialisation...';
+    }
 }
 
 @keyframes progress-animation {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(100%); }
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
 }
 
 .modal-overlay {
@@ -1616,17 +1698,41 @@ svg{
 }
 
 /* Ajouter les différents thèmes de coloration */
-[data-syntax-theme="default"] .token.string { color: #34d399; }
-[data-syntax-theme="default"] .token.keyword { color: #60a5fa; }
-[data-syntax-theme="default"] .token.function { color: #f59e0b; }
+[data-syntax-theme="default"] .token.string {
+    color: #34d399;
+}
 
-[data-syntax-theme="monokai"] .token.string { color: #e6db74; }
-[data-syntax-theme="monokai"] .token.keyword { color: #f92672; }
-[data-syntax-theme="monokai"] .token.function { color: #a6e22e; }
+[data-syntax-theme="default"] .token.keyword {
+    color: #60a5fa;
+}
 
-[data-syntax-theme="dracula"] .token.string { color: #f1fa8c; }
-[data-syntax-theme="dracula"] .token.keyword { color: #ff79c6; }
-[data-syntax-theme="dracula"] .token.function { color: #50fa7b; }
+[data-syntax-theme="default"] .token.function {
+    color: #f59e0b;
+}
+
+[data-syntax-theme="monokai"] .token.string {
+    color: #e6db74;
+}
+
+[data-syntax-theme="monokai"] .token.keyword {
+    color: #f92672;
+}
+
+[data-syntax-theme="monokai"] .token.function {
+    color: #a6e22e;
+}
+
+[data-syntax-theme="dracula"] .token.string {
+    color: #f1fa8c;
+}
+
+[data-syntax-theme="dracula"] .token.keyword {
+    color: #ff79c6;
+}
+
+[data-syntax-theme="dracula"] .token.function {
+    color: #50fa7b;
+}
 
 .syntax-theme-options {
     display: flex;
@@ -1674,8 +1780,8 @@ svg{
 
 .toolbar-toggle,
 .toolbar.collapsed,
-.toolbar.collapsed .toolbar-toggle,
-.toolbar.collapsed + .editor-container {
+.toolbar.collapsed.toolbar-toggle,
+.toolbar.collapsed+.editor-container {
     display: none;
 }
 
@@ -1715,7 +1821,7 @@ svg{
 }
 
 .sidebar.collapsed .sidebar-header h3,
-.sidebar.collapsed #newFile span,
+.sidebar.collapsed .new-cont,
 .sidebar.collapsed #fileExplorer {
     display: none;
 }
@@ -1730,16 +1836,18 @@ svg{
 }
 
 @media (max-width: 1280px) {
-    .toolbar{
+    .toolbar {
         flex: 0.25;
     }
-    .toolbar-actions{
+
+    .toolbar-actions {
         position: absolute;
         bottom: 15%;
         left: 50%;
         transform: translateX(-50%);
     }
-    .current-file{
+
+    .current-file {
         position: absolute;
         top: 20px;
         left: 50%;
@@ -1748,53 +1856,78 @@ svg{
 }
 
 @media (max-width: 1100px) {
-    .toolbar{
-       flex: 0.4;
+    .toolbar {
+        flex: 0.4;
     }
-    .toolbar-actions{
+
+    .toolbar-actions {
         display: grid;
         grid-template-columns: repeat(3, 150px);
         bottom: 10px;
     }
-    .current-file{
+
+    .current-file {
         top: 10px;
     }
 }
+
 /* (max-width: 1100px)  (max-height: 775px)*/
 @media (max-width: 1100px) and (max-height: 775px) {
-    .toolbar{
+    .toolbar {
         flex: 0.5;
     }
 }
+
 @media (max-width: 1100px) and (max-height: 700px) {
-    .toolbar{
+    .toolbar {
         flex: 0.6;
     }
 }
+
 @media (max-width: 1100px) and (max-height: 675px) {
-    .toolbar{
+    .toolbar {
         flex: 0.7;
     }
 }
+
 @media (max-width: 1100px) and (max-height: 650px) {
-    .toolbar{
+    .toolbar {
         flex: 0.8;
     }
 }
+
 @media (max-width: 1100px) and (max-height: 625px) {
-    .toolbar{
+    .toolbar {
         flex: 0.9;
     }
 }
+
 @media (max-width: 1100px) and (max-height: 600px) {
-    .toolbar{
+    .toolbar {
         flex: 1;
     }
 }
-.p{
+
+.p {
     position: fixed;
     bottom: 0;
     right: 5px;
     font-size: 10px;
     color: #0056b3;
+}
+
+.current-file svg {
+    display: block !important;
+    opacity: 1 !important;
+    width: 20 !important;
+    height: 20 !important;
+}
+
+.chat-message-user {
+    background-color: var(--primary-hover);
+    width: 60%;
+    border-radius: 15px;
+    padding: 5px 10px;
+    color: var(--text-color);
+    border: 2px solid #7777778a;
 }
