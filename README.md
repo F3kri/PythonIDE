@@ -1,8 +1,8 @@
 # Editeur de Code en Ligne Python (IDE) 🐍
 
 ## Liens 🔗
-# https://pythonide.netlify.app.
-# https://discord.gg/X7cZE28dAb.
+# https://pythonide.netlify.app
+# https://discord.gg/X7cZE28dAb
 
 ## Introduction 🚀
 L'Editeur de Code en Ligne est une application web permettant aux utilisateurs d'écrire, de compiler et d'exécuter du code Python *(pour le moment)* directement depuis leur navigateur. Cet IDE en ligne est conçu pour offrir une expérience de développement fluide et rapide, le design est pensé pour qu'il soit intuitif.
