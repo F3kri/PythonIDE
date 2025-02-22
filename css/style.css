@@ -610,24 +610,6 @@ input[type="file"] {
     gap: 1rem;
 }
 
-#newFolder {
-    pointer-events: none;
-}
-
-#newFolder::before {
-    height: 100%;
-    width: 100%;
-    content: 'Coming Soon';
-    background: #000000c4;
-    position: absolute;
-    z-index: 999;
-    top: 0;
-    left: 0;
-    color: var(--text-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
 #codeEditor {
     flex: 1;
@@ -1056,6 +1038,7 @@ input[type="file"] {
     padding-top: 30px;
     padding-right: 30px;
     padding-left: 20px;
+    min-height: 100px;
 }
 
 #fileExplorer::-webkit-scrollbar {
@@ -1063,9 +1046,9 @@ input[type="file"] {
 }
 
 .file-item {
+    font-size: 1rem;
     padding: 0.4rem 0;
     margin-bottom: 0.2rem;
-    width: 100%;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1079,14 +1062,51 @@ input[type="file"] {
 
 .file-item:hover {
     background: rgba(99, 102, 241, 0.1);
+    width: calc(100% - 40px) !important;
+}
+
+.drag-handle {
+    cursor: move;
+    padding: 0 5px;
+    color: #666;
+    display: inline-block;
+    font-size: 14px;
+    user-select: none;
+}
+
+.folder-item,
+.file-item {
+    cursor: pointer;
+    position: relative;
+}
+
+.drag-over {
+    background-color: rgba(0, 120, 215, 0.1);
+    border: 2px dashed #0078D7;
+}
+
+.file-content svg {
+    position: absolute;
+    left: 10px;
+}
+
+.folder-header,
+.file-content {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .folder-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding-right: 0.75rem;
+    padding: 4px;
+    gap: 5px;
+    border-radius: 4px;
+}
+
+.folder-header:hover {
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .file-content {
@@ -1132,7 +1152,16 @@ input[type="file"] {
     margin-left: auto;
 }
 
-.file-item:hover .file-actions {
+.folder-header:hover .file-actions {
+    opacity: 1;
+}
+
+.folder-actions {
+    opacity: 0;
+    margin-left: auto;
+}
+
+.file-item:hover .folder-actions {
     opacity: 1;
 }
 
@@ -1239,6 +1268,7 @@ textarea:focus {
 }
 
 @keyframes shake {
+
     0%,
     100% {
         transform: translateX(0);
@@ -1445,6 +1475,38 @@ body {
     background: var(--sidebar-bg);
 }
 
+.folder-actions {
+    position: absolute;
+    right: 0.5rem;
+    top: 2px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    gap: 0.25rem;
+    background: var(--bg-color);
+    padding: 0.25rem;
+    border-radius: var(--border-radius);
+}
+
+.folder-header:hover .folder-actions {
+    opacity: 1;
+}
+
+.folder-actions button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    padding: 0.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+.folder-actions button:hover {
+    color: var(--primary-color);
+    background: var(--sidebar-bg);
+}
+
 #themeToggle {
     position: relative;
 }
@@ -1463,6 +1525,11 @@ svg {
 
 [data-theme="dark"] #themeToggle i {
     opacity: 1;
+}
+
+.file-icon {
+    width: 20px;
+    height: 20px;
 }
 
 #loading-screen {
@@ -1579,6 +1646,7 @@ svg {
 }
 
 @keyframes float {
+
     0%,
     100% {
         transform: translateY(0);
@@ -2014,20 +2082,20 @@ svg {
 }
 
 /* Couleurs de la syntaxe en mode clair */
-[data-theme="light"] .token.keyword { 
-    color: var(--keyword-color) !important; 
+[data-theme="light"] .token.keyword {
+    color: var(--keyword-color) !important;
 }
 
-[data-theme="light"] .token.string { 
-    color: var(--string-color) !important; 
+[data-theme="light"] .token.string {
+    color: var(--string-color) !important;
 }
 
-[data-theme="light"] .token.function { 
-    color: var(--function-color) !important; 
+[data-theme="light"] .token.function {
+    color: var(--function-color) !important;
 }
 
-[data-theme="light"] .token.number { 
-    color: var(--number-color) !important; 
+[data-theme="light"] .token.number {
+    color: var(--number-color) !important;
 }
 
 /* Couleur du texte de la console en mode clair */
@@ -2096,20 +2164,20 @@ svg {
 }
 
 /* Ajuster les couleurs de la syntaxe dans le chat en mode clair */
-[data-theme="light"] .chat-messages .token.keyword { 
-    color: var(--keyword-color) !important; 
+[data-theme="light"] .chat-messages .token.keyword {
+    color: var(--keyword-color) !important;
 }
 
-[data-theme="light"] .chat-messages .token.string { 
-    color: var(--string-color) !important; 
+[data-theme="light"] .chat-messages .token.string {
+    color: var(--string-color) !important;
 }
 
-[data-theme="light"] .chat-messages .token.function { 
-    color: var(--function-color) !important; 
+[data-theme="light"] .chat-messages .token.function {
+    color: var(--function-color) !important;
 }
 
-[data-theme="light"] .chat-messages .token.number { 
-    color: var(--number-color) !important; 
+[data-theme="light"] .chat-messages .token.number {
+    color: var(--number-color) !important;
 }
 
 /* Style des messages de l'IA en mode clair */
@@ -2135,4 +2203,158 @@ svg {
 /* S'assurer que les liens restent visibles */
 [data-theme="light"] .chat-message a {
     color: var(--primary-color);
+}
+
+.dragging {
+    opacity: 0.5;
+}
+
+.folder-item.drag-over {
+    background-color: rgba(0, 120, 215, 0.1);
+    border: 2px dashed #0078D7;
+}
+
+.folder-item.drag-over>.folder-header {
+    background-color: rgba(0, 120, 215, 0.1);
+}
+
+.drag-handle:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+/* Style pour les fichiers dans un dossier (premier niveau) */
+.folder-item>.folder-content>.file-item {
+    font-size: 0.9rem;
+    padding: 0.3rem 0;
+    border-left: 2px solid #098658;
+    margin-left: 10px;
+    width: calc(100% - 45px);
+}.folder-item>.folder-content>.file-item:hover {
+    width: calc(100% - 55px) !important;
+}
+
+/* Style pour les fichiers dans un sous-dossier (deuxième niveau et plus) */
+.folder-item>.folder-content>.folder-item>.folder-content>.file-item {
+    font-size: 0.85rem;
+    padding: 0.25rem 0;
+    border-left: 2px solid #008000;
+    margin-left: 15px;
+}
+
+/* Ajuster la couleur du texte et de l'icône pour les fichiers dans les dossiers */
+.folder-item>.folder-content>.file-item .file-content span,
+.folder-item>.folder-content>.file-item .file-content i {
+    color: #098658;
+}
+
+/* Ajuster la couleur du texte et de l'icône pour les fichiers dans les sous-dossiers */
+.folder-item>.folder-content>.folder-item>.folder-content>.file-item .file-content span,
+.folder-item>.folder-content>.folder-item>.folder-content>.file-item .file-content i {
+    color: #008000;
+}
+
+/* Ajuster l'espacement et la bordure au survol */
+.folder-item>.folder-content>.file-item:hover,
+.folder-item>.folder-content>.folder-item>.folder-content>.file-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-left-width: 4px;
+    transition: all 0.2s ease;
+}
+
+/* Ajuster la marge gauche pour compenser la bordure au survol */
+.folder-item>.folder-content>.file-item:hover {
+    margin-left: 8px;
+}
+
+.folder-item>.folder-content>.folder-item>.folder-content>.file-item:hover {
+    margin-left: 13px;
+}
+
+/* Style pour les sous-dossiers */
+.folder-item .folder-item {
+    margin-left: 0.5rem;
+}
+
+/* Style pour les icônes de dossier selon le niveau */
+.folder-item .folder-header i.fas {
+    color: #098658;
+}
+
+.folder-item .folder-item .folder-header i.fas {
+    color: #008000;
+}
+
+/* Style pour le bouton de création de sous-dossier */
+.folder-actions .new-subfolder {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.folder-header:hover .new-subfolder {
+    opacity: 1;
+}
+
+/* Amélioration de la visibilité de la hiérarchie */
+.folder-content {
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    margin-left: 1rem;
+}
+
+/* Style de base pour les fichiers */
+.file-item {
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.file-item {
+    font-size: 0.9rem;
+    padding: 0.3rem 0;
+    border-left: 2px solid #098658;
+    margin-left: 10px;
+    width: calc(100% - 30px);
+}
+
+/* Couleur du texte et des icônes pour les fichiers dans les dossiers */
+.folder-content>.file-item .file-content span,
+.folder-content>.file-item .file-content i,
+.folder-content>.file-item .file-actions button {
+    color: #098658;
+}
+
+/* Effet de survol pour les fichiers dans les dossiers */
+.folder-content>.file-item:hover {
+    background: rgba(9, 134, 88, 0.1);
+    border-left-width: 4px;
+    margin-left: 8px;
+}
+
+/* Style pour le bouton de suppression */
+.folder-content>.file-item .file-actions .delete-file:hover {
+    color: #dc3545;
+}
+
+/* Style pour la poignée de glissement dans les dossiers */
+.folder-content>.file-item .drag-handle {
+    color: #098658;
+    opacity: 0.7;
+}
+
+/* Style pour le fichier actif dans un dossier */
+.folder-content>.file-item.active {
+    background: rgba(9, 134, 88, 0.15);
+    border-left-color: #098658;
+}
+
+/* Style pour la zone de drop */
+#fileExplorer.drag-over {
+    background-color: rgba(9, 134, 88, 0.1);
+    border: 2px dashed #098658;
+}
+
+#fileExplorer {
+    min-height: 50px;
+    position: relative;
+    padding: 8px;
+    transition: all 0.2s ease;
 }

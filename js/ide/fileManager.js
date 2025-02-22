@@ -38,8 +38,24 @@ function saveFilesToLocalStorage() {
 }
 
 // Création d'un nouveau fichier
-async function createNewFile(defaultName = 'nouveau_fichier.py') {
-    const fileName = await createModal('Nouveau fichier', defaultName);
+async function createNewFile(defaultName = 'Untitled.py') {
+    // Trouver le prochain numéro disponible pour Untitled
+    let nextNumber = 1;
+    const untitledFiles = files.filter(f => f.name.startsWith('Untitled'));
+
+    if (untitledFiles.length > 0) {
+        const numbers = untitledFiles
+            .map(f => {
+                const match = f.name.match(/Untitled(?:_(\d+))?\.py/);
+                return match ? parseInt(match[1] || '1') : 1;
+            })
+            .sort((a, b) => b - a);
+
+        nextNumber = (numbers[0] || 0) + 1;
+    }
+
+    const suggestedName = nextNumber === 1 ? 'Untitled.py' : `Untitled_${nextNumber}.py`;
+    const fileName = await createModal('Nouveau fichier', suggestedName);
     if (!fileName) return;
 
     const baseName = fileName.replace('.py', '');
@@ -64,10 +80,7 @@ async function createNewFile(defaultName = 'nouveau_fichier.py') {
         updateCodeHighlighting();
     }
 
-    // Mettre à jour l'explorateur de fichiers
     updateFileExplorer();
-
-    // Sauvegarder dans le localStorage
     saveFilesToLocalStorage();
 
     return newFile;
@@ -108,6 +121,7 @@ async function deleteFile(fileId) {
 
 // Renommage d'un fichier
 async function renameFile(fileId) {
+    const currentFileName = document.getElementById('currentFileName');
     const file = files.find(f => f.id === fileId);
     if (!file) return false;
 
@@ -121,7 +135,18 @@ async function renameFile(fileId) {
     }
 
     file.name = baseName.endsWith('.py') ? baseName : baseName + '.py';
+
+    // Mettre à jour currentFile si c'est le fichier actif
+    if (currentFile.id === fileId) {
+        currentFile.name = file.name;
+        if (currentFileName) {
+            currentFileName.textContent = file.name;
+        }
+    }
+
     updateFileExplorer();
+    saveFilesToLocalStorage();
+
     return true;
 }
 
@@ -149,17 +174,7 @@ function switchFile(file) {
     if (codeEditor) {
         codeEditor.value = file.content || '';
         updateCodeHighlighting();
-
-        // Mettre à jour les numéros de ligne
-        if (lineNumbersContainer) {
-            lineNumbersContainer.innerHTML = '';
-            const lines = file.content.split('\n');
-            lines.forEach((_, index) => {
-                const span = document.createElement('span');
-                span.textContent = index + 1;
-                lineNumbersContainer.appendChild(span);
-            });
-        }
+        updateLineCounter();
     }
 
     if (currentFileName) {
@@ -235,109 +250,301 @@ function handleFileUpload(event) {
 }
 
 // Mise à jour de l'explorateur de fichiers
-function updateFileExplorer() {
+async function updateFileExplorer() {
+    // Vérifier s'il n'y a aucun fichier
+    if (files.length === 0) {
+        const defaultFile = {
+            id: Date.now(),
+            name: 'Untitled.py',
+            content: 'print("Hello World !")'
+        };
+        files.push(defaultFile);
+        Object.assign(currentFile, defaultFile);
+
+        const codeEditor = document.getElementById('codeEditor');
+        if (codeEditor) {
+            codeEditor.value = defaultFile.content;
+            updateCodeHighlighting();
+        }
+    }
+
     updateLineCounter();
     const fragment = document.createDocumentFragment();
     document.getElementById('currentFileName').textContent = currentFile.name;
 
-    // Créer une structure arborescente
-    const treeStructure = {};
-    files.forEach(file => {
-        const path = (file.path || file.name).split('/');
-        let current = treeStructure;
+    // Séparer les fichiers et les dossiers
+    const folders = files.filter(item => item.type === 'folder');
+    const rootFiles = files.filter(item => !item.type && !item.path);
+    const filesInFolders = files.filter(item => !item.type && item.path);
 
-        // Créer les dossiers parents
-        for (let i = 0; i < path.length - 1; i++) {
-            if (!current[path[i]]) {
-                current[path[i]] = { type: 'folder', content: {}, isOpen: true };
-            }
-            current = current[path[i]].content;
-        }
+    // Trier par ordre
+    const sortByOrder = (a, b) => (a.order || 0) - (b.order || 0);
+    folders.sort(sortByOrder);
+    rootFiles.sort(sortByOrder);
 
-        // Ajouter le fichier
-        const fileName = path[path.length - 1];
-        current[fileName] = { type: 'file', data: file };
-    });
+    // Créer les éléments de dossier
+    folders.forEach(folder => {
+        const folderElement = document.createElement('div');
+        folderElement.className = 'folder-item';
+        folderElement.style.paddingLeft = '1.2rem';
+        folderElement.innerHTML = `
+            <div class="folder-header">
+                <i class="fas ${folder.isOpen ? 'fa-folder-open' : 'fa-folder'}"></i>
+                <div class="drag-handle">⋮⋮</div>
+                <span>${folder.name}</span>
+               <div class="folder-actions">
+                <button class="rename-folder"><i class="fas fa-edit"></i></button>
+                <button class="delete-folder"><i class="fas fa-trash"></i></button>
+            </div>
+            </div>
+            <div class="folder-content" ${folder.isOpen ? '' : 'style="display: none;"'}></div>
+        `;
 
-    // Fonction récursive pour créer l'interface
-    function createTreeElement(structure, level = 0) {
-        const items = [];
-        for (const [name, item] of Object.entries(structure)) {
-            const element = document.createElement('div');
-            if (item.type === 'file') {
-                element.className = 'file-item';
-                element.dataset.fileId = String(item.data.id);
-                element.style.paddingLeft = `${level * 1.2 + 0.75}rem`;
+        // Gestion du drag & drop pour le dossier
+        folderElement.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            folderElement.classList.add('drag-over');
+        });
 
-                // Ajouter la classe active uniquement si c'est le fichier courant
-                if (currentFile && currentFile.id === item.data.id) {
-                    element.classList.add('active');
-                    // S'assurer qu'il n'y a pas de style inline qui pourrait interférer
-                    element.style.backgroundColor = '';
+        folderElement.addEventListener('dragleave', () => {
+            folderElement.classList.remove('drag-over');
+        });
+
+        folderElement.addEventListener('drop', (e) => {
+            e.preventDefault();
+            folderElement.classList.remove('drag-over');
+
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            if (data.type === 'file') {
+                const file = files.find(f => f.id === parseInt(data.id));
+                if (file) {
+                    file.path = folder.name;
+                    file.order = Date.now();
+                    updateFileExplorer();
+                    saveFilesToLocalStorage();
                 }
+            }
+        });
 
-                element.innerHTML = `
-                    <div class="file-content">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="16 16 32 32">
-                            <path fill="url(#a)" d="M31.885 16c-8.124 0-7.617 3.523-7.617 3.523l.01 3.65h7.752v1.095H21.197S16 23.678 16 31.876c0 8.196 4.537 7.906 4.537 7.906h2.708v-3.804s-.146-4.537 4.465-4.537h7.688s4.32.07 4.32-4.175v-7.019S40.374 16 31.885 16zm-4.275 2.454a1.394 1.394 0 1 1 0 2.79 1.393 1.393 0 0 1-1.395-1.395c0-.771.624-1.395 1.395-1.395z"/>
-                            <path fill="url(#b)" d="M32.115 47.833c8.124 0 7.617-3.523 7.617-3.523l-.01-3.65H31.97v-1.095h10.832S48 40.155 48 31.958c0-8.197-4.537-7.906-4.537-7.906h-2.708v3.803s.146 4.537-4.465 4.537h-7.688s-4.32-.07-4.32 4.175v7.019s-.656 4.247 7.833 4.247zm4.275-2.454a1.393 1.393 0 0 1-1.395-1.395 1.394 1.394 0 1 1 1.395 1.395z"/>
-                            <defs>
-                                <linearGradient id="a" x1="19.075" x2="34.898" y1="18.782" y2="34.658" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#387EB8"/>
-                                    <stop offset="1" stop-color="#366994"/>
-                                </linearGradient>
-                                <linearGradient id="b" x1="28.809" x2="45.803" y1="28.882" y2="45.163" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#FFE052"/>
-                                    <stop offset="1" stop-color="#FFC331"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <span>${name}</span>
-                        <div class="file-actions">
-                            <button class="rename-file"><i class="fas fa-edit"></i></button>
-                            <button class="delete-file"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
+        // Toggle folder
+        const folderHeader = folderElement.querySelector('.folder-header');
+        folderHeader.addEventListener('click', (e) => {
+            if (!e.target.closest('.folder-actions')) {
+                folder.isOpen = !folder.isOpen;
+                const content = folderElement.querySelector('.folder-content');
+                const icon = folderElement.querySelector('.fas');
+                content.style.display = folder.isOpen ? 'block' : 'none';
+                icon.classList.toggle('fa-folder-open');
+                icon.classList.toggle('fa-folder');
+                saveFilesToLocalStorage();
+            }
+        });
 
-                element.addEventListener('click', (e) => {
-                    if (!e.target.closest('.file-actions')) {
-                        // Désélectionner tous les autres fichiers
-                        document.querySelectorAll('.file-item').forEach(el => {
-                            el.classList.remove('active');
-                            el.style.backgroundColor = '';
-                        });
-                        // Sélectionner ce fichier
-                        element.classList.add('active');
-                        switchFile(item.data);
+        // Renommer le dossier
+        folderElement.querySelector('.rename-folder').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const newName = await createModal('Renommer le dossier', folder.name);
+            if (newName && newName !== folder.name && newName.length <= 16) {
+                const oldName = folder.name;
+                folder.name = newName;
+                // Mettre à jour les chemins des fichiers
+                filesInFolders.forEach(file => {
+                    if (file.path === oldName) {
+                        file.path = newName;
                     }
                 });
-
-                // Gestionnaire pour renommer
-                element.querySelector('.rename-file').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    renameFile(item.data.id);
-                });
-
-                // Gestionnaire pour supprimer
-                element.querySelector('.delete-file').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteFile(item.data.id);
-                });
+                updateFileExplorer();
+                saveFilesToLocalStorage();
             }
-            items.push(element);
-        }
-        return items;
-    }
+        });
 
-    const elements = createTreeElement(treeStructure);
-    elements.forEach(element => fragment.appendChild(element));
+        // Supprimer le dossier
+        folderElement.querySelector('.delete-folder').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const hasFiles = filesInFolders.some(file => file.path === folder.name);
+            if (hasFiles) {
+                const confirmed = await createModal(
+                    'Supprimer le dossier',
+                    'Ce dossier contient des fichiers. Voulez-vous vraiment le supprimer ?',
+                    null,
+                    'confirm'
+                );
+                if (!confirmed) return;
+            }
+
+            // Supprimer le dossier et tous les fichiers qu'il contient
+            files = files.filter(f => f !== folder && f.path !== folder.name);
+
+            updateFileExplorer();
+            saveFilesToLocalStorage();
+        });
+
+        // Ajouter les fichiers du dossier
+        const folderContent = folderElement.querySelector('.folder-content');
+        const folderFiles = filesInFolders.filter(file => file.path === folder.name);
+        folderFiles.sort(sortByOrder);
+
+        folderFiles.forEach(file => {
+            const fileElement = createFileElement(file);
+            folderContent.appendChild(fileElement);
+        });
+
+        fragment.appendChild(folderElement);
+    });
+
+    // Ajouter les fichiers racine
+    rootFiles.forEach(file => {
+        const fileElement = createFileElement(file);
+        fragment.appendChild(fileElement);
+    });
 
     const fileExplorer = document.getElementById('fileExplorer');
     fileExplorer.innerHTML = '';
     fileExplorer.appendChild(fragment);
+
+    // Ajouter les gestionnaires pour permettre le drop sur la racine
+    fileExplorer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        // Ne montrer la zone de drop que si on n'est pas au-dessus d'un dossier
+        if (!e.target.closest('.folder-item')) {
+            fileExplorer.classList.add('drag-over');
+        }
+    });
+
+    fileExplorer.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        if (!e.target.closest('.folder-item')) {
+            fileExplorer.classList.remove('drag-over');
+        }
+    });
+
+    fileExplorer.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileExplorer.classList.remove('drag-over');
+
+        // Si on drop sur un dossier, laisser le gestionnaire du dossier s'en occuper
+        if (e.target.closest('.folder-item')) {
+            return;
+        }
+
+        try {
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            if (data.type === 'file') {
+                const file = files.find(f => f.id === parseInt(data.id));
+                if (file) {
+                    // Supprimer le chemin pour mettre le fichier à la racine
+                    delete file.path;
+                    file.order = Date.now();
+                    updateFileExplorer();
+                    saveFilesToLocalStorage();
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors du drop sur fileExplorer:', error);
+        }
+    });
+
     saveFilesToLocalStorage();
-    updateLineCounter();
+}
+
+// Fonction helper pour créer un élément de fichier
+function createFileElement(file) {
+    const element = document.createElement('div');
+    element.className = 'file-item';
+    element.draggable = true;
+    element.dataset.fileId = String(file.id);
+    element.dataset.type = 'file';
+    element.style.paddingLeft = file.path ? '2rem' : '1.2rem';
+
+    if (currentFile && currentFile.id === file.id) {
+        element.classList.add('active');
+    }
+
+    element.innerHTML = `
+        <div class="file-content">
+            <img src="assets/python_ico.png" alt="Python" class="file-icon">
+            <div class="drag-handle">⋮⋮</div>
+            <span>${file.name}</span>
+            <div class="file-actions">
+                <button class="rename-file"><i class="fas fa-edit"></i></button>
+                <button class="delete-file"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `;
+
+    // Ajouter les gestionnaires d'événements pour les boutons
+    element.querySelector('.delete-file').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await deleteFile(file.id);
+    });
+
+    element.querySelector('.rename-file').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await renameFile(file.id);
+    });
+
+    element.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+            type: 'file',
+            id: file.id
+        }));
+    });
+
+    element.addEventListener('click', (e) => {
+        if (!e.target.closest('.file-actions')) {
+            document.querySelectorAll('.file-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            element.classList.add('active');
+            switchFile(file);
+        }
+    });
+
+    return element;
+}
+
+// Création d'un nouveau dossier
+async function createNewFolder() {
+    // Trouver le prochain numéro disponible pour les dossiers
+    let nextNumber = 1;
+    const existingFolders = files.filter(f => f.type === 'folder' && f.name.startsWith('Folder'));
+
+    if (existingFolders.length > 0) {
+        const numbers = existingFolders
+            .map(f => {
+                const match = f.name.match(/Folder(?:_(\d+))?/);
+                return match ? parseInt(match[1] || '1') : 1;
+            })
+            .sort((a, b) => b - a);
+
+        nextNumber = (numbers[0] || 0) + 1;
+    }
+
+    const suggestedName = nextNumber === 1 ? 'Folder' : `Folder_${nextNumber}`;
+    const folderName = await createModal('Nouveau dossier', suggestedName);
+    if (!folderName) return;
+
+    if (folderName.length > 16) {
+        alert("Le nom du dossier ne doit pas dépasser 16 caractères");
+        return;
+    }
+
+    if (files.some(f => f.type === 'folder' && f.name === folderName)) {
+        alert("Un dossier avec ce nom existe déjà");
+        return;
+    }
+
+    const newFolder = {
+        id: Date.now(),
+        name: folderName,
+        type: 'folder',
+        isOpen: true,
+        order: Date.now()
+    };
+
+    files.push(newFolder);
+    updateFileExplorer();
+    saveFilesToLocalStorage();
 }
 
 // Ajout d'une fonction pour sauvegarder le contenu actuel
@@ -365,14 +572,30 @@ window.addEventListener('beforeunload', () => {
     saveCurrentFile();
 });
 
+const newFolderButton = document.getElementById('newFolder');
+if (newFolderButton) {
+    newFolderButton.addEventListener('click', createNewFolder);
+}
+
+// Fonction pour déplacer un fichier dans un dossier
+function moveFileToFolder(fileId, folderPath) {
+    const file = files.find(f => f.id === fileId);
+    if (!file) return;
+
+    file.path = folderPath + '/' + file.name;
+    updateFileExplorer();
+    saveFilesToLocalStorage();
+}
+
 export {
     loadFilesFromLocalStorage,
     saveFilesToLocalStorage,
     createNewFile,
+    createNewFolder,
     deleteFile,
     renameFile,
     switchFile,
     handleFileUpload,
     updateFileExplorer,
     saveCurrentFile
-}; 
+};
