@@ -2,6 +2,41 @@
 <html lang="fr">
 
 <head>
+    <style>
+        /* Appliquer immédiatement le thème sombre */
+        :root {
+            color-scheme: dark;
+        }
+
+        html,
+        body {
+            background-color: #0f172a !important;
+            color: #e2e8f0 !important;
+        }
+
+        /* Cacher le contenu sauf le loader */
+        body>*:not(#loading-screen) {
+            visibility: hidden;
+        }
+
+        /* Le loader reste visible */
+        #loading-screen {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Une fois que la classe 'loaded' est ajoutée */
+        body.loaded>*:not(#loading-screen) {
+            visibility: visible;
+            transition: background-color 0.3s ease;
+        }
+
+        body.loaded #loading-screen {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Web IDE</title>
@@ -11,7 +46,42 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="icon" type="image/png" href="assets/Frame_1_9.png">
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="e1395bc8-2d08-43c1-b846-b5e92e56db4f"></script>
+    <script defer src="https://cloud.umami.is/script.js"
+        data-website-id="e1395bc8-2d08-43c1-b846-b5e92e56db4f"></script>
+    <script>
+        // Appliquer le thème sombre immédiatement avant tout chargement
+        document.documentElement.setAttribute('data-theme', 'dark');
+
+        // Stocker le thème dans le localStorage
+        localStorage.setItem('theme', 'dark');
+
+        // Fonction pour afficher le contenu une fois chargé
+        function showContent() {
+            document.body.classList.add('loaded');
+        }
+
+
+        // Mise à jour des numéros de ligne
+        function updateLineCounter() {
+            const codeEditor = document.getElementById('codeEditor');
+            const lineNumbersContainer = document.getElementById('line-numbers');
+            if (!codeEditor || !lineNumbersContainer) {
+                console.error("Éléments de l'éditeur non trouvés");
+                return;
+            }
+
+            lineNumbersContainer.innerHTML = '';
+            const lines = codeEditor.value.split('\n');
+            lines.forEach((_, index) => {
+                const span = document.createElement('span');
+                span.textContent = index + 1;
+                lineNumbersContainer.appendChild(span);
+            });
+        }
+
+        // Ajouter la classe 'loaded' une fois que tout est chargé
+        window.addEventListener('load', showContent);
+    </script>
 </head>
 
 <body>
@@ -45,12 +115,12 @@
                 </div>
                 <div id="impFile" class="file-input-container">
                     <label for="file-upload" class="custom-file-upload"><i class="fas fa-upload"></i> Importer</label>
-                    <input id="file-upload" type="file" accept=".py" onchange="handleFileUpload(event)">
+                    <input id="file-upload" type="file" accept=".py">
                 </div>
             </div>
             <div id="fileExplorer"></div>
             <button id="jtcButton" onclick="window.open('https:\/\/discord.gg/sZRAYAe3b8', '_blank' )">Join the
-                comunity</button>
+                community</button>
         </div>
         <div class=" main-content">
             <div class="toolbar">
@@ -92,11 +162,18 @@
             </div>
         </div>
     </div>
-    <div class="p">V3.3</div>
+    <div class="p">V4</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pyodide/0.21.3/pyodide.js"></script>
-    <script src="js/script.js"></script>
+    <script type="module" src="js/ide/config.js"></script>
+    <script type="module" src="js/ide/fileManager.js"></script>
+    <script type="module" src="js/ide/editor.js"></script>
+    <script type="module" src="js/ide/pyodide.js"></script>
+    <script type="module" src="js/ide/suggestions.js"></script>
+    <script type="module" src="js/ide/chat.js"></script>
+    <script type="module" src="js/ide/ui.js"></script>
+    <script type="module" src="js/ide/main.js"></script>
 </body>
 
 </html>
