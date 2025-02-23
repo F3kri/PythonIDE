@@ -5,6 +5,7 @@
     text-align: center;
 }
 
+/* Variables et styles de base */
 :root {
     --primary: #6366f1;
     --dark: #0f172a;
@@ -17,10 +18,128 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
+/* Styles du contenu FAQ */
 .faq-content {
     max-width: 1200px;
-    margin: 120px auto 0;
-    padding: 0 20px;
+    margin: 100px auto 0;
+    padding: 2rem 20px;
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    backdrop-filter: blur(10px);
+}
+
+.faq-content::before,
+.faq-content::after,
+.decorative-circle-1,
+.decorative-circle-2 {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.15;
+    z-index: -1;
+}
+
+.faq-content::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+    top: -50px;
+    left: 0;
+}
+
+.faq-content::after {
+    background: #6366f1;
+    bottom: 10%;
+    right: 5%;
+    animation: float 10s ease-in-out infinite reverse;
+}
+
+.decorative-circle-1 {
+    width: 400px;
+    height: 400px;
+    background: #4f46e5;
+    top: 40%;
+    left: -10%;
+    animation: float 12s ease-in-out infinite;
+}
+
+.decorative-circle-2 {
+    width: 350px;
+    height: 350px;
+    background: #7c3aed;
+    top: 60%;
+    right: -5%;
+    animation: float 15s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-20px) scale(1.05);
+    }
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+.stars {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+}
+
+.star:nth-child(1) { top: 15%; left: 10%; animation: twinkle 3s ease-in-out infinite; }
+.star:nth-child(2) { top: 25%; left: 20%; animation: twinkle 4s ease-in-out infinite 0.3s; }
+.star:nth-child(3) { top: 35%; left: 35%; animation: twinkle 3.5s ease-in-out infinite 0.7s; }
+.star:nth-child(4) { top: 45%; left: 40%; animation: twinkle 4s ease-in-out infinite 1s; }
+.star:nth-child(5) { top: 55%; left: 55%; animation: twinkle 3s ease-in-out infinite 1.3s; }
+.star:nth-child(6) { top: 65%; left: 60%; animation: twinkle 3.5s ease-in-out infinite 1.6s; }
+.star:nth-child(7) { top: 75%; left: 75%; animation: twinkle 4s ease-in-out infinite 1.9s; }
+.star:nth-child(8) { top: 85%; left: 80%; animation: twinkle 3s ease-in-out infinite 2.2s; }
+.star:nth-child(9) { top: 20%; left: 85%; animation: twinkle 3.5s ease-in-out infinite 2.5s; }
+.star:nth-child(10) { top: 30%; left: 90%; animation: twinkle 4s ease-in-out infinite 2.8s; }
+.star:nth-child(11) { top: 40%; left: 15%; animation: twinkle 3s ease-in-out infinite 3.1s; }
+.star:nth-child(12) { top: 50%; left: 25%; animation: twinkle 3.5s ease-in-out infinite 3.4s; }
+.star:nth-child(13) { top: 60%; left: 45%; animation: twinkle 4s ease-in-out infinite 3.7s; }
+.star:nth-child(14) { top: 70%; left: 65%; animation: twinkle 3s ease-in-out infinite 4s; }
+.star:nth-child(15) { top: 80%; left: 70%; animation: twinkle 3.5s ease-in-out infinite 4.3s; }
+.star:nth-child(16) { top: 15%; left: 95%; animation: twinkle 4s ease-in-out infinite 4.6s; }
+.star:nth-child(17) { top: 25%; left: 5%; animation: twinkle 3s ease-in-out infinite 4.9s; }
+.star:nth-child(18) { top: 45%; left: 85%; animation: twinkle 3.5s ease-in-out infinite 5.2s; }
+.star:nth-child(19) { top: 75%; left: 25%; animation: twinkle 4s ease-in-out infinite 5.5s; }
+.star:nth-child(20) { top: 85%; left: 45%; animation: twinkle 3s ease-in-out infinite 5.8s; }
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAElBMVEUAAAD8/vz08vT09PT8+vz///+Tb6O0AAAABXRSTlMoKCh8/NfBiNUAAAA8SURBVDjLY2AYBaNg2AJGRkYGDECMxNTAwMgIYTMyEqUP2R5GRtLsYWQk0T5GRtLsYWAYDtE5CkbBwAIAulwEBnq4Z+QAAAAASUVORK5CYII=');
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: -1;
 }
 
 h1 {
@@ -45,17 +164,20 @@ h1 {
     font-weight: 400;
 }
 
+/* Liste FAQ */
 .faq-list {
     max-width: 800px;
     margin: 0 auto;
 }
 
 .faq-item {
-    background: rgba(15, 23, 42, 0.6);
+    background: rgba(15, 23, 42, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     margin-bottom: 0.75rem;
     overflow: hidden;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
 .question {
@@ -140,19 +262,101 @@ h1 {
     border-color: rgba(99, 102, 241, 0.2);
 }
 
-@media (max-width: 768px) {
-    h1 {
-        font-size: 2.5rem;
-    }
-
-    .faq-content {
-        margin-top: 100px;
-        padding: 0 1rem;
-    }
-
-    .question h3 {
-        font-size: 0.8rem;
-    }
+/* Éléments décoratifs */
+.hero-shapes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -1;
 }
 
-/* ... le reste du CSS ... */ 
+.shape {
+    position: absolute;
+    filter: blur(100px);
+    opacity: 0.5;
+    animation: float 8s infinite;
+}
+
+.shape-1 {
+    top: 15%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    background: #818cf8;
+}
+
+.shape-2 {
+    bottom: 20%;
+    right: 15%;
+    width: 400px;
+    height: 400px;
+    background: #6366f1;
+    animation-delay: 2s;
+}
+
+.shape-3 {
+    top: 50%;
+    left: 50%;
+    width: 350px;
+    height: 350px;
+    background: #4f46e5;
+    animation-delay: 4s;
+}
+
+/* Snippets de code */
+.code-snippets {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.snippet {
+    position: absolute;
+    padding: 0.5rem 1rem;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    opacity: 0.6;
+    animation: floatSnippet 10s infinite;
+}
+
+.snippet:nth-child(1) { top: 20%; left: 15%; }
+.snippet:nth-child(2) { top: 60%; right: 10%; animation-delay: 3s; }
+.snippet:nth-child(3) { top: 80%; left: 30%; animation-delay: 6s; }
+
+/* Points de code */
+.code-dots {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(circle at center, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+    z-index: -2;
+    opacity: 0.5;
+}
+
+/* Animations */
+@keyframes floatSnippet {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    h1 { font-size: 2.5rem; }
+    .faq-content { padding: 0 1rem; }
+    .question h3 { font-size: 0.8rem; }
+}
+
+/* ... le reste du CSS ... */
+
+/* ... rest of existing code ... */ 
