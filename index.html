@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyEditor - Éditeur de texte Python moderne</title>
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fab fa-python"></i> PyDE
+            </div>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li>
+                        <a href="faq/faq.html" class="nav-link">FAQ</a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/F3kri/PythonIDE" class="nav-link github-link">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </li>
+                    <li><a href="../ide/ide.html" class="btn btn-primary">
+                        <i class="fab fa-python"></i>
+                        App Python
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="code-snippets">
+                <div class="snippet">print("Hello World")</div>
+                <div class="snippet">def main():</div>
+                <div class="snippet">class Python:</div>
+            </div>
+        </div>
+        <div class="code-dots"></div>
+        <div class="container">
+            <div class="hero-right">
+                <h1>Python, <br>c'est simple non ?</h1>
+                <p>PyDE est l'environnement de développement nouvelle génération qui allie puissance et simplicité. Découvrez une nouvelle façon de coder en Python avec des outils intelligents et une interface intuitive.</p>
+            </div>
+            <div class="hero-left">
+                <div class="code-preview">
+                    <div class="window-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <pre><code><span class="keyword">def</span> <span class="function">PyDE</span><span class="parenthesis">()</span>:
+    <span class="function">print</span><span class="parenthesis">(</span><span class="string">"Le Meilleur Editeur de texte Python en ligne !"</span><span class="parenthesis">)</span></code></pre>
+                </div>
+                <div class="hero-buttons">
+                    <a href="#download" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i>
+                        Lancer PyDE gratuitement
+                    </a>
+                    <a href="#demo" class="btn btn-outline">
+                        <i class="fas fa-play"></i>
+                        Explorer l'interface
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="fonctionnalites" class="features">
+        <div class="container">
+            <h2 class="section-title">Fonctionnalités principales</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Exécution de code en direct</h3>
+                    <p>Exécutez votre code Python directement dans l'éditeur et voyez les résultats instantanément.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>Thèmes personnalisables</h3>
+                    <p>Personnalisez l'apparence de votre éditeur selon vos préférences.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Assistant IA</h3>
+                    <p>Bénéficiez d'une aide intelligente pour améliorer votre code et apprendre plus rapidement grâce à notre IA intégrée.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo">
+        <div class="container">
+            <h2 class="section-title">L'interface de PyDE</h2>
+            <div class="demo-preview">
+                <div class="code-window">
+                    <div class="window-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <div class="demo-image">
+                        <img src="assets/pyde.jpg" alt="Interface PyDE" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="temoignages" class="testimonials">
+        <div class="container">
+            <h2 class="section-title">Ce qu'ils en pensent</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <i class="fas fa-quote-left"></i>
+                        <p>En tant que formateur Python, PyDE est devenu mon outil principal. L'assistant IA aide mes étudiants à comprendre leurs erreurs et à progresser plus rapidement.</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h4>Thomas D.</h4>
+                            <p>Formateur Python</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <i class="fas fa-quote-left"></i>
+                        <p>PyDE m'aide énormément dans mes études. L'interface est intuitive et l'assistant IA m'aide à comprendre mes erreurs. C'est parfait pour progresser en Python.</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h4>Marie L.</h4>
+                            <p>Étudiante en informatique</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <i class="fas fa-quote-left"></i>
+                        <p>Je débute en programmation et PyDE est exactement ce dont j'avais besoin. Les explications de l'IA sont claires et adaptées à mon niveau.</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h4>Sophie R.</h4>
+                            <p>Étudiante en reconversion</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Une question ?</h2>
+            <div class="contact-container">
+                <form class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Nom</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Envoyer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-brand">
+                <div class="logo">
+                    <i class="fab fa-python"></i> PyDE
+                </div>
+                <p>L'éditeur Python nouvelle génération</p>
+            </div>
+            <div class="footer-bottom">
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="src/js/script.js"></script>
+</body>
+</html> 

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <script>
+        !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId captureTraceFeedback captureTraceMetric".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+        posthog.init('phc_WT5QDj4n5oNgx5DHynLc52xbLgjRpqgFxknjnwfAyPJ', {
+            api_host: 'https://eu.i.posthog.com',
+            person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
+        })
+    </script>
+    <style>
+        /* Appliquer immédiatement le thème sombre */
+        :root {
+            color-scheme: dark;
+        }
+
+        html,
+        body {
+            background-color: #0f172a !important;
+            color: #e2e8f0 !important;
+        }
+
+        /* Cacher le contenu sauf le loader */
+        body>*:not(#loading-screen) {
+            visibility: hidden;
+        }
+
+        /* Le loader reste visible */
+        #loading-screen {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Une fois que la classe 'loaded' est ajoutée */
+        body.loaded>*:not(#loading-screen) {
+            visibility: visible;
+            transition: background-color 0.3s ease;
+        }
+
+        body.loaded #loading-screen {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Web IDE</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="icon" type="image/png" href="../assets/Frame_1_9.png">
+    <script>
+        // Appliquer le thème sombre immédiatement avant tout chargement
+        document.documentElement.setAttribute('data-theme', 'dark');
+
+        // Stocker le thème dans le localStorage
+        localStorage.setItem('theme', 'dark');
+
+        // Fonction pour afficher le contenu une fois chargé
+        function showContent() {
+            document.body.classList.add('loaded');
+        }
+
+
+        // Mise à jour des numéros de ligne
+        function updateLineCounter() {
+            const codeEditor = document.getElementById('codeEditor');
+            const lineNumbersContainer = document.getElementById('line-numbers');
+            if (!codeEditor || !lineNumbersContainer) {
+                console.error("Éléments de l'éditeur non trouvés");
+                return;
+            }
+
+            lineNumbersContainer.innerHTML = '';
+            const lines = codeEditor.value.split('\n');
+            lines.forEach((_, index) => {
+                const span = document.createElement('span');
+                span.textContent = index + 1;
+                lineNumbersContainer.appendChild(span);
+            });
+        }
+
+        // Ajouter la classe 'loaded' une fois que tout est chargé
+        window.addEventListener('load', showContent);
+    </script>
+</head>
+
+<body>
+
+    <div id="loading-screen">
+        <div class="loader">
+            <div class="loader-content">
+                <div class="loader-logo">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <div class="loader-text">
+                    <h2>Python Web IDE</h2>
+                    <div class="typing-text">Initialisation...</div>
+                </div>
+                <div class="loader-progress-bar">
+                    <div class="progress-value"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <h3>Explorateur</h3>
+                    <button id="toggleSidebar"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="new-cont" id="newCont">
+                    <button id="newFile"><i class="fas fa-plus"></i> Nouveau fichier</button>
+                    <button id="newFolder"><i class="fas fa-folder-plus"></i> Nouveau dossier</button>
+                </div>
+                <div id="impFile" class="file-input-container">
+                    <label for="file-upload" class="custom-file-upload"><i class="fas fa-upload"></i> Importer</label>
+                    <input id="file-upload" type="file" accept=".py">
+                </div>
+            </div>
+            <div id="fileExplorer"></div>
+            <button id="jtcButton" onclick="window.open('https:\/\/discord.gg/sZRAYAe3b8', '_blank' )">Join the
+                community</button>
+        </div>
+        <div class=" main-content">
+            <div class="toolbar">
+                <div class="current-file">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
+                        <path fill="#0277BD"
+                            d="M24.047,5c-1.555,0.005-2.633,0.142-3.936,0.367c-3.848,0.67-4.549,2.077-4.549,4.67V14h9v2H15.22h-4.35c-2.636,0-4.943,1.242-5.674,4.219c-0.826,3.417-0.863,5.557,0,9.125C5.851,32.005,7.294,34,9.931,34h3.632v-5.104c0-2.966,2.686-5.896,5.764-5.896h7.236c2.523,0,5-1.862,5-4.377v-8.586c0-2.439-1.759-4.263-4.218-4.672C27.406,5.359,25.589,4.994,24.047,5z M19.063,9c0.821,0,1.5,0.677,1.5,1.502c0,0.833-0.679,1.498-1.5,1.498c-0.837,0-1.5-0.664-1.5-1.498C17.563,9.68,18.226,9,19.063,9z">
+                        </path>
+                        <path fill="#FFC107"
+                            d="M23.078,43c1.555-0.005,2.633-0.142,3.936-0.367c3.848-0.67,4.549-2.077,4.549-4.67V34h-9v-2h9.343h4.35c2.636,0,4.943-1.242,5.674-4.219c0.826-3.417,0.863-5.557,0-9.125C41.274,15.995,39.831,14,37.194,14h-3.632v5.104c0,2.966-2.686,5.896-5.764,5.896h-7.236c-2.523,0-5,1.862-5,4.377v8.586c0,2.439,1.759,4.263,4.218,4.672C19.719,42.641,21.536,43.006,23.078,43z M28.063,39c-0.821,0-1.5-0.677-1.5-1.502c0-0.833,0.679-1.498,1.5-1.498c0.837,0,1.5,0.664,1.5,1.498C29.563,38.32,28.899,39,28.063,39z">
+                        </path>
+                    </svg>
+                    <span id="currentFileName">Untitled.py</span>
+                </div>
+                <div class="toolbar-actions">
+                    <button id="run"><i class="fas fa-play"></i><span>Exécuter</span></button>
+                    <button id="save"><i class="fas fa-save"></i><span>Sauvegarder</span></button>
+                    <button id="clear"><i class="fas fa-eraser"></i><span>Effacer</span></button>
+                    <button id="themeToggle"><i class="fas fa-moon"></i><span>Thème</span></button>
+                    <button id="syntaxTheme"><i class="fas fa-palette"></i><span>Syntaxe</span></button>
+                    <button id="aiHelper"><i class="fas fa-robot"></i><span>Assistant IA</span></button>
+                </div>
+            </div>
+            <div class="editor-container">
+                <div class="line-gutter"></div>
+                <textarea id="codeEditor" spellcheck="false"></textarea>
+                <div class="line-numbers-container" id="line-numbers"></div>
+            </div>
+            <div class="console">
+                <div class="console-header">
+                    <h3>Console Python</h3>
+                    <div class="console-actions">
+                        <button id="maxConsale"><i class="fas fa-chevron-up"></i></button>
+                        <button id="clearConsole"><i class="fas fa-trash"></i></button>
+                        <button id="toggleConsole"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                </div>
+                <div id="consoleOutput"></div>
+            </div>
+        </div>
+    </div>
+    <div class="p">V4</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pyodide/0.21.3/pyodide.js"></script>
+    <script type="module" src="js/ide/config.js"></script>
+    <script type="module" src="js/ide/fileManager.js"></script>
+    <script type="module" src="js/ide/editor.js"></script>
+    <script type="module" src="js/ide/pyodide.js"></script>
+    <script type="module" src="js/ide/suggestions.js"></script>
+    <script type="module" src="js/ide/chat.js"></script>
+    <script type="module" src="js/ide/ui.js"></script>
+    <script type="module" src="js/ide/main.js"></script>
+</body>
+
+</html>
